@@ -1,9 +1,16 @@
 /*
   Плавные переходы между страницами.
-  1) Свечение. Новая страница стартует с цветом прошлой и за 0,7 с
-     перетекает в свой. Так при переходе из главной в «Чоловічий»
-     фиолетовое свечение плавно становится синим, а не мигает.
-  2) Уход. Перед переходом содержимое мягко гаснет.
+
+  1) Свечение. Новая страница стартует с цветом прошлой и за 0,7 с перетекает
+     в свой. Главная (фиолетовое) в «Чоловічий» (синее): фиолетовый плавно
+     становится синим. «Чоловічий» в «Жіночий»: синий становится бордовым.
+     Так же работает подсветка, подчёркивание и цена: у них те же переменные.
+  2) Кнопки «Назад» и «Вперёд» в браузере. Страница возвращается из памяти
+     браузера (bfcache) и скрипт не запускается заново, поэтому цвет
+     перетекает по событию pageshow.
+  3) Уход. Перед переходом содержимое мягко гаснет, а свечение остаётся.
+
+  Запоминаем, на какой странице были в последний раз (sessionStorage).
 */
 (function () {
   "use strict";
@@ -13,23 +20,37 @@
   var body = document.body;
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  // Какой раздел показывает эта страница. Для section.html он берётся из адреса
+  // (body.data-section на время смены цвета временно подменяется).
   var target = body.getAttribute("data-section") || "home";
-  var previous = null;
-  try { previous = sessionStorage.getItem(KEY); } catch (e) { /* ничего */ }
 
-  if (!reduce && previous && previous !== target) {
-    // 1. ставим цвет прошлой страницы
-    body.setAttribute("data-section", previous);
-    // 2. заставляем браузер «увидеть» его
+  function readPrev() {
+    try { return sessionStorage.getItem(KEY); } catch (e) { return null; }
+  }
+  function writePrev(v) {
+    try { sessionStorage.setItem(KEY, v); } catch (e) { /* ничего */ }
+  }
+
+  /* Плавно перевести цвета из раздела `from` в раздел `to`. */
+  function morph(from, to) {
+    // 1. Мгновенно (без анимации) ставим цвет, с которого начинаем
+    body.classList.add("no-tr");
+    body.setAttribute("data-section", from);
     void getComputedStyle(body).getPropertyValue("--c-main");
-    // 3. в следующем кадре включаем настоящий цвет: запускается плавный переход
+    body.classList.remove("no-tr");
+    void getComputedStyle(body).getPropertyValue("--c-main");
+    // 2. В следующем кадре включаем настоящий цвет: запускается плавный переход
     window.requestAnimationFrame(function () {
       window.requestAnimationFrame(function () {
-        body.setAttribute("data-section", target);
+        body.setAttribute("data-section", to);
       });
     });
   }
-  try { sessionStorage.setItem(KEY, target); } catch (e) { /* ничего */ }
+
+  // Первая загрузка страницы
+  var previous = readPrev();
+  if (!reduce && previous && previous !== target) morph(previous, target);
+  writePrev(target);
 
   function isInternalPageLink(a, e) {
     if (!a || !a.href) return false;
@@ -56,8 +77,13 @@
     window.setTimeout(function () { location.href = href; }, LEAVE_MS);
   });
 
-  // Кнопка «назад» может показать страницу из памяти браузера уже погасшей
+  // «Назад» и «Вперёд»: страница вернулась из памяти браузера
   window.addEventListener("pageshow", function (e) {
-    if (e.persisted) body.classList.remove("is-leaving");
+    if (!e.persisted) return;
+    body.classList.remove("is-leaving");
+    var prev = readPrev();
+    if (!reduce && prev && prev !== target) morph(prev, target);
+    else body.setAttribute("data-section", target);
+    writePrev(target);
   });
 })();

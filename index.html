@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#000000">
   <title>PRYSMERK. Одяг для сутінок</title>
+  <script>
+    /* До первой отрисовки: если мы пришли с другой страницы сайта, свечение не затухает заново */
+    try { if (sessionStorage.getItem("prysmerk-section")) document.documentElement.classList.add("has-prev"); } catch (e) {}
+  </script>
   <meta name="description" content="PRYSMERK. Демонстраційний каталог одягу вигаданого бренду.">
 
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000'/%3E%3Cpath d='M12 24V8h5.5a4.5 4.5 0 0 1 0 9H12' fill='none' stroke='%23ede8e0' stroke-width='1.6'/%3E%3C/svg%3E">

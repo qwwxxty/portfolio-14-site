@@ -85,6 +85,9 @@
     --glow-k var(--glow-time) ease;
 }
 
+/* Служебный класс: поставить цвет мгновенно, без плавности (его включает transitions.js) */
+[data-section].no-tr { transition: none !important; }
+
 /* Цвета пункта раздела (меню, главная): у каждого пункта свой раздел */
 [data-s="home"]  { --s-2: var(--home-2);  --s-3: var(--home-3); }
 [data-s="men"]   { --s-2: var(--men-2);   --s-3: var(--men-3); }
