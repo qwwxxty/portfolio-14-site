@@ -396,18 +396,56 @@
     var a = e.target.closest ? e.target.closest("a.tile") : null;
     if (!a || e.defaultPrevented || e.button !== 0) return;
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    if (!P.hero || !P.hero.available()) return; // «уменьшить движение»: обычный переход
     e.preventDefault();
-    P.hero.start(a);
+    if (P.hero && P.hero.available()) {
+      P.hero.start(a);
+    } else {
+      // «Уменьшить движение»: без зума, только затухание. Переход тоже сразу.
+      document.dispatchEvent(new CustomEvent("prysmerk:leave"));
+      document.body.classList.add("is-hero-leaving");
+      a.classList.add("is-chosen");
+      location.href = a.href;
+    }
   });
+
+  /* ---------- Предзагрузка ----------
+     Пока палец или курсор над плашкой, страница товара уже качается: к моменту клика она в кэше.
+     Скрипты и стили страницы товара подгружаем заранее, когда браузер свободен. */
+  var prefetched = {};
+  function prefetch(href) {
+    if (!href || prefetched[href]) return;
+    prefetched[href] = true;
+    var l = document.createElement("link");
+    l.rel = "prefetch";
+    l.href = href;
+    document.head.appendChild(l);
+  }
+  function tileFromEvent(e) { return e.target.closest ? e.target.closest("a.tile") : null; }
+  catalogEl.addEventListener("pointerover", function (e) { var a = tileFromEvent(e); if (a) prefetch(a.href); });
+  catalogEl.addEventListener("touchstart", function (e) { var a = tileFromEvent(e); if (a) prefetch(a.href); }, { passive: true });
+  function prefetchProductAssets() {
+    ["css/product.css", "js/product.js", "js/order.js"].forEach(prefetch);
+  }
+  if ("requestIdleCallback" in window) window.requestIdleCallback(prefetchProductAssets, { timeout: 2500 });
+  else window.setTimeout(prefetchProductAssets, 1500);
 
   /* ---------- Запуск ---------- */
   function init(json) {
     data = json;
     buildStructure();
-    buildFilterChips();
-    updateCurrencyUi();
     renderRows();
+
+    // Панель фильтров скрыта: собираем её после первого кадра, чтобы не удлинять его.
+    // Запасной таймер нужен для фоновых вкладок, где requestAnimationFrame не вызывается.
+    var filtersBuilt = false;
+    var buildFilters = function () {
+      if (filtersBuilt) return;
+      filtersBuilt = true;
+      buildFilterChips();
+      updateCurrencyUi();
+    };
+    window.requestAnimationFrame(buildFilters);
+    window.setTimeout(buildFilters, 120);
 
     // Переход по ссылке вида section.html?s=men#jackets
     var hash = decodeURIComponent(location.hash.replace("#", ""));
@@ -418,12 +456,23 @@
     }
   }
 
+  function ready() { document.body.classList.add("is-ready"); }
+
   i18n.apply(document);
 
-  P.data.load()
-    .then(init)
-    .catch(function () {
-      showStatus("catalog.error");
-      openBtn.hidden = true;
-    });
+  // Если данные уже есть в памяти вкладки, рисуем сразу, в этом же кадре. Иначе ждём сеть.
+  var cachedData = P.data.cached();
+  if (cachedData) {
+    init(cachedData);
+    ready();
+    P.data.load(); // в фоне проверит свежесть
+  } else {
+    P.data.load()
+      .then(function (d) { init(d); ready(); })
+      .catch(function () {
+        showStatus("catalog.error");
+        openBtn.hidden = true;
+        ready();
+      });
+  }
 })();

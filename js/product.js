@@ -28,7 +28,6 @@
      невидимый свет, молочная слишком яркий, и приглушённый текст на нём перестал бы
      читаться. Поэтому цвет подгоняется по яркости: в центре свечение складывается
      примерно до 50% цвета, и эта яркость держится в допустимых пределах. */
-  var GLOW_STORE = "prysmerk-glow";
   var PEAK = 0.5;
   var L_MIN = 0.02;   // не темнее: иначе света не видно
   var L_MAX = 0.036;  // не светлее: иначе текст не пройдёт контраст 4,5 : 1
@@ -58,10 +57,9 @@
 
   function setGlow(hex) {
     if (!HEX.test(hex || "")) return;
-    var c = glowFor(hex);
-    document.documentElement.style.setProperty("--product-glow", c);
-    try { sessionStorage.setItem(GLOW_STORE, c); } catch (e) { /* ничего */ }
+    if (P.glow) P.glow.set(glowFor(hex));
   }
+
   var infoEl = null;
   var mainPhoto = null;
   var orderBtn = null;
@@ -76,6 +74,17 @@
 
   function setTitle(text) { document.title = text + ". PRYSMERK"; }
 
+  function ready() { document.body.classList.add("is-ready"); }
+
+  // Выполнить функцию после первого кадра. Запасной таймер нужен для фоновых вкладок:
+  // там браузер не вызывает requestAnimationFrame, и страница осталась бы недорисованной.
+  function afterFirstFrame(fn) {
+    var done = false;
+    var run = function () { if (done) return; done = true; fn(); };
+    window.requestAnimationFrame(run);
+    window.setTimeout(run, 120);
+  }
+
   function status(key) {
     P.hero.removeGhost();
     root.replaceChildren(
@@ -83,6 +92,7 @@
       h("a", { class: "btn product__status-link", href: "section.html?s=men", "data-i18n": "product.notfound.link" }, [t("product.notfound.link")])
     );
     document.title = "PRYSMERK";
+    ready();
   }
 
   function photo(variant, tone, isMain) {
@@ -195,14 +205,34 @@
     infoEl = h("div", { class: "product__info" });
     var layout = h("div", { class: "product" }, [media, infoEl]);
 
+    // Кадр 1: только то, что видно сразу (кнопка назад и фото), и старт анимации открытия.
     root.replaceChildren(back, layout);
-    renderInfo();
-    i18n.apply(root);
-
-    setGlow(tone); // свет вещи
-
-    // Открытие с плашки: главное фото едет из прежнего места на своё
     if (heroData) P.hero.play(mainPhoto, id);
+
+    // Кадр 2: текст, размеры, свет вещи, предзагрузка. Так сборка страницы не складывается
+    // в один длинный кадр, который бы подвесил начало зума на слабом телефоне.
+    afterFirstFrame(function () {
+      renderInfo();
+      i18n.apply(root);
+      setGlow(tone);
+      ready();
+      prefetchBack(p);
+    });
+  }
+
+  /* Предзагрузка: назад ведёт на страницу раздела, подгружаем её заранее, когда браузер свободен */
+  function prefetchBack(p) {
+    var urls = ["section.html?s=" + encodeURIComponent(p.section), "js/catalog.js"];
+    var run = function () {
+      urls.forEach(function (u) {
+        var l = document.createElement("link");
+        l.rel = "prefetch";
+        l.href = u;
+        document.head.appendChild(l);
+      });
+    };
+    if ("requestIdleCallback" in window) window.requestIdleCallback(run, { timeout: 2500 });
+    else window.setTimeout(run, 1500);
   }
 
   // Выбрали цвет в окне заказа: свет становится цветом этой вещи
@@ -218,6 +248,13 @@
   if (!id) {
     status("product.notfound");
   } else {
-    D.load().then(init).catch(function () { status("product.error"); });
+    // Данные уже в памяти вкладки: рисуем в этом же кадре. Иначе ждём сеть (файл уже качается через preload).
+    var cachedData = D.cached();
+    if (cachedData) {
+      init(cachedData);
+      D.load(); // в фоне проверит свежесть
+    } else {
+      D.load().then(init).catch(function () { status("product.error"); });
+    }
   }
 })();

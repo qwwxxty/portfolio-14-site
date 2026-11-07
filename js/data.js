@@ -8,17 +8,47 @@
 
   var P = (window.PRYSMERK = window.PRYSMERK || {});
   var i18n = P.i18n;
-  var cache = null;
+  var STORE_KEY = "prysmerk-data-v1";
+  var promise = null;
 
-  function load() {
-    if (!cache) {
-      cache = fetch("data/products.json").then(function (r) {
-        if (!r.ok) throw new Error("HTTP " + r.status);
-        return r.json();
-      });
-      cache.catch(function () { cache = null; }); // при ошибке можно попробовать снова
+  /* Данные из памяти вкладки (sessionStorage). Если они уже есть, страницу можно
+     нарисовать сразу, в том же кадре, без ожидания сети. */
+  var memo = null; // уже разобранные данные: JSON.parse нужен один раз на страницу
+  function cached() {
+    if (memo) return memo;
+    try {
+      var raw = sessionStorage.getItem(STORE_KEY);
+      memo = raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      memo = null;
     }
-    return cache;
+    return memo;
+  }
+
+  function fetchFresh() {
+    return fetch("data/products.json").then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    }).then(function (d) {
+      try { sessionStorage.setItem(STORE_KEY, JSON.stringify(d)); } catch (e) { /* без кэша работает по-старому */ }
+      return d;
+    });
+  }
+
+  /* load() возвращает данные. Если в памяти вкладки они есть, отдаёт их сразу, а свежую
+     копию в это время проверяет в фоне (она пригодится на следующей странице).
+     Запрос на файл уже запущен тегом <link rel="preload"> в HTML, поэтому ждать почти нечего. */
+  function load() {
+    if (promise) return promise;
+    var c = cached();
+    if (c) {
+      promise = Promise.resolve(c);
+      fetchFresh().catch(function () { /* офлайн: остаёмся на кэше */ });
+    } else {
+      promise = fetchFresh();
+      promise.catch(function () { promise = null; });
+    }
+    return promise;
   }
 
   // Украинский: гривны. Английский: доллары. Обе цены лежат в products.json,
@@ -42,6 +72,7 @@
 
   P.data = {
     load: load,
+    cached: cached,
     priceKey: priceKey,
     formatAmount: formatAmount,
     formatPrice: formatPrice,

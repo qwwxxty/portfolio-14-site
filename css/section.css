@@ -264,7 +264,8 @@ body.is-leaving .subnav { opacity: 0; }
 
 /* ---------- Открытие товара (см. hero.js) ----------
    Гаснет всё, кроме фото выбранной плашки: оно остаётся на месте и затем
-   «переезжает» на страницу товара. */
+   «переезжает» на страницу товара. Затухание 0,2 с идёт ПАРАЛЛЕЛЬНО с загрузкой
+   следующей страницы: переход начинается сразу по клику. */
 body.is-hero-leaving .topbar,
 body.is-hero-leaving .subnav,
 body.is-hero-leaving .section-head,
@@ -272,11 +273,18 @@ body.is-hero-leaving .row__title,
 body.is-hero-leaving .footer,
 body.is-hero-leaving .tile:not(.is-chosen) {
   opacity: 0;
-  transition: opacity 0.38s ease;
+  transition: opacity 0.2s ease;
+}
+/* У выбранной плашки на время перехода снимаем всё тяжёлое: размытие стекла и тени */
+body.is-hero-leaving .tile.is-chosen {
+  box-shadow: none;
+  transition: none;
 }
 body.is-hero-leaving .tile.is-chosen .tile__info {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.2s ease;
 }
 
 /* ---------- Сообщения ---------- */

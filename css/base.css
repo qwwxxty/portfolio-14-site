@@ -91,13 +91,18 @@ img, svg { display: block; max-width: 100%; }
 }
 .glow-layer .glow { top: var(--glow-y); }
 
-/* Цвет свечения = --product-glow (обычно это тот же графит). Когда он меняется,
-   например на странице товара, свет плавно перетекает в новый цвет. */
-.glow-layer {
-  --graphite: var(--product-glow);
-  transition: --graphite 0.8s ease;
+/* «Свет вещи» без тяжёлых перерисовок (см. js/glow.js): поверх обычного свечения лежат
+   слои с готовым цветом, а мы меняем только их прозрачность. Это делает видеокарта,
+   главный поток не нагружается, поэтому зум фото не пропускает кадры. */
+.glow-layer .glow { transition: opacity 0.8s ease; }
+.glow-layer .glow--tint {
+  --graphite: var(--tint);
+  opacity: 0;
+  will-change: opacity;
 }
-.glow-layer.no-tr { transition: none; }
+.glow-layer .glow--tint.is-on { opacity: 1; }
+.glow-layer.has-tint .glow:not(.glow--tint) { opacity: 0; }
+.glow-layer.no-tr .glow { transition: none; }
 
 /* Само свечение. Используется внутри .glow-layer (и на тестовой странице). */
 .glow {
@@ -427,6 +432,17 @@ main {
   animation: page-in 0.7s ease both;
 }
 
+/* Страницы с каталогом и товаром: быстро (0,25 с), main не короче экрана, чтобы футер всегда
+   был под ним, и футер скрыт, пока страница не нарисовала контент (флаг is-ready ставит JS).
+   Иначе пустой main поднимал бы футер в середину экрана, а потом контент выталкивал его вниз. */
+.section-page,
+.product-page {
+  animation-duration: 0.25s;
+  min-height: 100vh;
+  min-height: 100svh;
+}
+body[data-async]:not(.is-ready) .footer { visibility: hidden; }
+
 @keyframes page-in {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -633,6 +649,21 @@ body.is-leaving .topbar {
    Если в системе включено «уменьшить движение», анимации и плавные
    переходы отключаются. */
 @media (prefers-reduced-motion: reduce) {
+  /* Исключение: простое затухание страницы (опасности движения нет). Всё остальное ниже выключено. */
+  main {
+    animation: page-in 0.25s linear both !important;
+  }
+  body.is-leaving main,
+  body.is-leaving .footer,
+  body.is-leaving .topbar,
+  body.is-hero-leaving .topbar,
+  body.is-hero-leaving .subnav,
+  body.is-hero-leaving .section-head,
+  body.is-hero-leaving .row__title,
+  body.is-hero-leaving .footer,
+  body.is-hero-leaving .tile {
+    transition-duration: 0.2s !important;
+  }
   *,
   *::before,
   *::after {

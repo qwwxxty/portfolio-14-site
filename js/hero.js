@@ -1,24 +1,32 @@
 /*
   Анимация открытия товара: плашка растворяется, фото плавно увеличивается к центру.
 
-  Как это устроено (без видео-магии, простыми словами):
-  1. На странице раздела по клику все плашки кроме выбранной, заголовки и шапка гаснут,
-     а у выбранной гаснет стеклянная подпись. Само фото остаётся на месте.
-  2. Мы запоминаем, где именно было фото (положение и размер на экране).
-  3. На странице товара главное фото сначала ставится ровно туда же и потом плавно
-     едет и растёт на своё место. Эта техника называется FLIP:
-     «измерили, откуда стартуем, и проиграли разницу».
-  4. Пока страница товара ещё грузит данные, на её месте стоит «призрак»: копия фото
-     в том же месте. Так в момент перехода не видно пустого экрана.
-  Если включено «уменьшить движение» или страница открыта напрямую, этого нет:
-  работает обычный плавный переход.
+  Как это устроено (простыми словами):
+  1. Клик. Переход на страницу товара начинается СРАЗУ. В это время (параллельно, 0,2 с)
+     всё вокруг выбранной плашки гаснет, а у неё гаснет стеклянная подпись.
+  2. Запоминаем, где было фото: положение и размер на экране.
+  3. На странице товара главное фото сначала ставится туда же, а потом плавно едет и
+     растёт на своё место. Такая техника называется FLIP: «измерили, откуда стартуем,
+     и проиграли только разницу».
+
+  Что сделано, чтобы не было рывков:
+  - анимируется ТОЛЬКО transform. Любое другое свойство (например border-radius) заставило бы
+    браузер считать каждый кадр в главном потоке, и при его занятости кадры пропускались бы;
+  - will-change: transform включается на время движения и потом снимается;
+  - перед стартом фото стоит на месте плашки два кадра: за это время слой успевает
+    отрисоваться, и первый кадр движения не «заикается»;
+  - кривая cubic-bezier(0.4, 0, 0.2, 1) без резкого старта, 650 мс.
+
+  Если включено «уменьшить движение»: зума нет, только затухание. Если страница открыта
+  напрямую: обычное проявление.
 */
 (function () {
   "use strict";
 
   var P = (window.PRYSMERK = window.PRYSMERK || {});
   var KEY = "prysmerk-hero";
-  var LEAVE_MS = 420;
+  var DURATION = 650;
+  var EASING = "cubic-bezier(0.4, 0, 0.2, 1)";
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   function productIdFromHref(href) {
@@ -28,17 +36,16 @@
   /* ---------- Страница раздела: старт ---------- */
   function start(tile) {
     var href = tile.href;
-    var id = productIdFromHref(href);
     var r = tile.getBoundingClientRect();
     var tone = tile.style.getPropertyValue("--tone") || "";
     try {
-      sessionStorage.setItem(KEY, JSON.stringify({ id: id, x: r.left, y: r.top, w: r.width, h: r.height, tone: tone }));
+      sessionStorage.setItem(KEY, JSON.stringify({ id: productIdFromHref(href), x: r.left, y: r.top, w: r.width, h: r.height, tone: tone }));
     } catch (e) { /* без памяти анимации не будет, переход всё равно сработает */ }
 
     document.dispatchEvent(new CustomEvent("prysmerk:leave"));
     tile.classList.add("is-chosen");
     document.body.classList.add("is-hero-leaving");
-    window.setTimeout(function () { location.href = href; }, LEAVE_MS);
+    location.href = href; // без паузы: затухание идёт, пока грузится следующая страница
   }
 
   /* Возврат кнопкой «Назад»: страница раздела вернулась из памяти уже погасшей */
@@ -64,7 +71,8 @@
     try { sessionStorage.removeItem(KEY); } catch (e) { /* ничего */ }
   }
 
-  /* Призрак: копия фото в том же месте, пока грузятся данные */
+  /* Призрак: копия фото в том же месте. Закрывает пустоту, пока грузятся данные,
+     и пока настоящее фото отрисовывается. */
   var ghost = null;
   function showGhost(id) {
     var d = read(id);
@@ -93,20 +101,44 @@
     var d = read(id);
     clear();
     if (!d || !photoEl.animate) { removeGhost(); return false; }
+
     var n = photoEl.getBoundingClientRect();
     if (!(n.width > 0)) { removeGhost(); return false; }
+
     var s = d.w / n.width;
-    var dx = d.x - n.left;
-    var dy = d.y - n.top;
-    var anim = photoEl.animate([
-      { transform: "translate(" + dx + "px," + dy + "px) scale(" + s + ")", borderRadius: 22 / s + "px" },
-      { transform: "none", borderRadius: "22px" }
-    ], { duration: 950, easing: "cubic-bezier(0.22, 1, 0.36, 1)", transformOrigin: "0 0" });
+    var from = "translate(" + (d.x - n.left) + "px," + (d.y - n.top) + "px) scale(" + s + ")";
+
+    // Ставим фото на место плашки (пока без движения) и готовим слой
     photoEl.style.transformOrigin = "0 0";
-    removeGhost(); // тот же кадр: призрак исчезает, фото уже стоит на его месте
-    anim.onfinish = function () { photoEl.style.transformOrigin = ""; };
+    photoEl.style.willChange = "transform";
+    photoEl.style.transform = from;
+
+    // Два кадра ждём: слой отрисован, призрак ещё закрывает экран. Потом он уходит, а фото стартует.
+    window.requestAnimationFrame(function () {
+      window.requestAnimationFrame(function () {
+        removeGhost();
+        var anim = photoEl.animate(
+          [{ transform: from }, { transform: "none" }],
+          { duration: DURATION, easing: EASING, fill: "both" }
+        );
+        photoEl.style.transform = ""; // дальше значение держит анимация
+        var done = function () {
+          anim.cancel();
+          photoEl.style.willChange = "";
+          photoEl.style.transformOrigin = "";
+        };
+        anim.onfinish = done;
+        anim.oncancel = function () { photoEl.style.willChange = ""; photoEl.style.transformOrigin = ""; };
+      });
+    });
     return true;
   }
 
-  P.hero = { start: start, showGhost: showGhost, removeGhost: removeGhost, play: play, available: function () { return !reduce; } };
+  P.hero = {
+    start: start,
+    showGhost: showGhost,
+    removeGhost: removeGhost,
+    play: play,
+    available: function () { return !reduce; }
+  };
 })();
