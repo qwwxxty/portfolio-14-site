@@ -1,0 +1,385 @@
+/*
+  PRYSMERK. Общие стили: цвета, шрифты, свечение, «жидкое стекло»,
+  кнопка меню, окно меню, футер.
+*/
+
+/* ---------- Цвета и размеры (токены) ----------
+   Токен: имя, под которым хранится значение. Меняешь цвет здесь,
+   и он меняется везде, где стоит var(--имя). */
+:root {
+  --bg: #000;
+  --ink: #ece8e1;
+  --ink-dim: rgba(236, 232, 225, 0.66);
+  --ink-faint: rgba(236, 232, 225, 0.5);
+  --hairline: rgba(236, 232, 225, 0.14);
+
+  /* свечение по разделам */
+  --c-home: #ff6a1a;
+  --c-men: #1f51ff;
+  --c-women: #7f1734;
+  --c-kids: #e3a82b;
+
+  --font-display: "Cormorant", "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-body: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --glow-time: 0.7s;
+
+  --gutter: 24px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+/* Регистрация --glow как цвета. Без этого браузер не умеет плавно
+   менять значение переменной, и цвет сменился бы рывком. */
+@property --glow {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ff6a1a;
+}
+
+/* ---------- Сброс ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
+  color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100svh;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--ink);
+  background: transparent;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+
+  --glow: var(--c-home);
+  transition: --glow var(--glow-time) ease;
+}
+
+body[data-section="home"] { --glow: var(--c-home); }
+body[data-section="men"] { --glow: var(--c-men); }
+body[data-section="women"] { --glow: var(--c-women); }
+body[data-section="kids"] { --glow: var(--c-kids); }
+
+body.menu-open {
+  overflow: hidden;
+}
+
+h1, h2, h3, p, ul { margin: 0; padding: 0; }
+ul { list-style: none; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+img, svg { display: block; max-width: 100%; }
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ---------- Свечение ---------- */
+/* Общее мягкое свечение у нижнего края экрана. Живёт на всех страницах. */
+body::before {
+  content: "";
+  position: fixed;
+  left: 50%;
+  bottom: -38vh;
+  width: 150vw;
+  height: 70vh;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--glow) 34%, transparent), transparent);
+  filter: blur(40px);
+  opacity: 0.55;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Главное свечение. Кладётся внутрь блока, под которым должен быть свет. */
+.glow {
+  position: absolute;
+  left: 50%;
+  width: 150vw;
+  max-width: 1500px;
+  aspect-ratio: 1.7 / 1;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, var(--glow) 0%, color-mix(in srgb, var(--glow) 38%, transparent) 45%, transparent 100%);
+  filter: blur(34px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ---------- Жидкое стекло ----------
+   Стекло = размытие того, что за ним (backdrop-filter), тонкая светлая
+   кромка и блик сверху. */
+.glass {
+  position: relative;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.03) 60%),
+    color-mix(in srgb, var(--glow) 9%, rgba(18, 18, 20, 0.35));
+  -webkit-backdrop-filter: blur(26px) saturate(180%);
+  backdrop-filter: blur(26px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.38),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06),
+    0 18px 50px rgba(0, 0, 0, 0.5);
+}
+
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(120% 55% at 12% 0%, rgba(255, 255, 255, 0.2), transparent 55%);
+  pointer-events: none;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass { background: rgba(24, 24, 27, 0.94); }
+}
+
+/* ---------- Кнопка меню ---------- */
+.topbar {
+  position: fixed;
+  top: calc(var(--safe-top) + 14px);
+  left: calc(var(--safe-left) + 16px);
+  z-index: 30;
+  transition: opacity 0.35s ease;
+}
+
+.menu-btn {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  transition: transform 0.4s var(--ease-out), border-color 0.3s ease;
+}
+
+.menu-btn svg { position: relative; }
+
+@media (hover: hover) {
+  .menu-btn:hover { transform: scale(1.06); border-color: rgba(255, 255, 255, 0.3); }
+}
+.menu-btn:active { transform: scale(0.96); }
+
+/* ---------- Окно меню ---------- */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0s 0.5s;
+}
+.menu-open .scrim {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.5s ease, visibility 0s;
+}
+
+.drawer {
+  position: fixed;
+  top: calc(var(--safe-top) + 10px);
+  bottom: calc(var(--safe-bottom) + 10px);
+  left: calc(var(--safe-left) + 10px);
+  z-index: 50;
+  width: min(86vw, 360px);
+  display: flex;
+  flex-direction: column;
+  padding: 14px 28px 28px;
+  border-radius: 32px;
+  transform: translateX(calc(-100% - 24px));
+  visibility: hidden;
+  transition: transform 0.55s var(--ease-out), visibility 0s 0.55s;
+}
+.menu-open .drawer {
+  transform: none;
+  visibility: visible;
+  transition: transform 0.55s var(--ease-out), visibility 0s;
+}
+
+.drawer__head {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  margin-right: -12px;
+}
+
+.drawer__close {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  color: var(--ink-dim);
+  transition: color 0.3s ease;
+}
+.drawer__close:hover { color: var(--ink); }
+
+.drawer__nav {
+  position: relative;
+  margin-top: 6vh;
+}
+
+.drawer__list > li + li { margin-top: 4px; }
+
+.drawer__link {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 56px;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 2rem;
+  line-height: 1.1;
+  color: var(--ink-dim);
+  transition: color 0.3s ease, transform 0.45s var(--ease-out);
+}
+.drawer__link:hover,
+.drawer__link[aria-current="page"] { color: var(--ink); }
+@media (hover: hover) {
+  .drawer__link:hover { transform: translateX(6px); }
+}
+
+.drawer__link--quiet {
+  font-size: 1.5rem;
+  min-height: 52px;
+}
+
+.drawer__rule {
+  height: 1px;
+  margin: 22px 0 14px;
+  background: var(--hairline);
+}
+
+.dot {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--dot);
+  box-shadow: 0 0 14px 1px var(--dot);
+}
+.dot[data-s="men"] { --dot: var(--c-men); }
+.dot[data-s="women"] { --dot: var(--c-women); }
+.dot[data-s="kids"] { --dot: var(--c-kids); }
+
+/* Выбранный раздел: тонкая подсветка строки */
+.drawer__link[aria-current="page"] .dot { transform: scale(1.35); }
+
+.drawer__foot {
+  position: relative;
+  margin-top: auto;
+}
+
+.lang {
+  display: inline-flex;
+  padding: 4px;
+  gap: 2px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--hairline);
+}
+
+.lang__btn {
+  min-width: 56px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-dim);
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+.lang__btn[aria-pressed="true"] {
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* ---------- Вход на страницу и уход ---------- */
+main {
+  position: relative;
+  animation: page-in 0.7s ease both;
+}
+
+@keyframes page-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+main,
+.footer {
+  transition: opacity 0.35s ease;
+}
+body.is-leaving main,
+body.is-leaving .footer,
+body.is-leaving .topbar {
+  opacity: 0;
+}
+
+/* ---------- Футер ---------- */
+.footer {
+  position: relative;
+  padding: 22vh var(--gutter) calc(36px + var(--safe-bottom));
+}
+
+.footer__brand {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 1.5rem;
+  letter-spacing: 0.3em;
+  margin-bottom: 28px;
+}
+
+.footer__nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 0.875rem;
+  color: var(--ink-dim);
+  transition: color 0.3s ease;
+}
+.footer__nav a:hover { color: var(--ink); }
+
+.footer__note {
+  margin-top: 28px;
+  max-width: 34ch;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--ink-faint);
+}
+
+/* ---------- Уменьшить движение ----------
+   Если в системе включено «уменьшить движение», анимации и плавные
+   переходы отключаются. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}

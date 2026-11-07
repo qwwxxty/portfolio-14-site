@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="uk" data-title-key="meta.home">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <title>PRYSMERK. Одяг для сутінок</title>
+  <meta name="description" content="PRYSMERK. Демонстраційний каталог одягу вигаданого бренду.">
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000'/%3E%3Ccircle cx='16' cy='20' r='6' fill='%23ff6a1a'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant:wght@300;400&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/home.css">
+</head>
+<body data-section="home">
+  <main>
+    <section class="hero">
+      <div class="glow" aria-hidden="true"></div>
+      <h1 class="wordmark" lang="en">PRYSMERK</h1>
+      <p class="hero__tagline" data-i18n="home.tagline">Одяг для сутінок.</p>
+    </section>
+
+    <section class="credo">
+      <h2 class="credo__title" data-i18n="home.credo.title">Година між світлом і темрявою.</h2>
+      <p class="credo__text" data-i18n="home.credo.text">Присмерк не закінчує день і не починає ніч. У цей час речі видно такими, які вони є. Ми шиємо для нього.</p>
+    </section>
+
+    <section class="dna">
+      <div class="dna__item">
+        <h3 class="dna__title" data-i18n="home.dna.1.title">Тиша</h3>
+        <p class="dna__text" data-i18n="home.dna.1.text">Без логотипів на лицьовій стороні. Річ говорить кроєм.</p>
+      </div>
+      <div class="dna__item">
+        <h3 class="dna__title" data-i18n="home.dna.2.title">Шов</h3>
+        <p class="dna__text" data-i18n="home.dna.2.text">Видимий там, де тримає форму. Прихований там, де заважає.</p>
+      </div>
+      <div class="dna__item">
+        <h3 class="dna__title" data-i18n="home.dna.3.title">Партія</h3>
+        <p class="dna__text" data-i18n="home.dna.3.text">Кожна серія обмежена. Номер партії вшитий усередину.</p>
+      </div>
+    </section>
+
+    <nav class="enter" data-i18n-aria="menu.sections" aria-label="Розділи">
+      <ul class="enter__list">
+        <li><a class="enter__link" href="section.html?s=men"><span class="dot" data-s="men" aria-hidden="true"></span><span data-i18n="nav.men">Чоловічий одяг</span></a></li>
+        <li><a class="enter__link" href="section.html?s=women"><span class="dot" data-s="women" aria-hidden="true"></span><span data-i18n="nav.women">Жіночий одяг</span></a></li>
+        <li><a class="enter__link" href="section.html?s=kids"><span class="dot" data-s="kids" aria-hidden="true"></span><span data-i18n="nav.kids">Дитячий одяг</span></a></li>
+      </ul>
+    </nav>
+  </main>
+
+  <!-- Порядок важен: переводы, язык, каркас (меню и футер), переходы -->
+  <script src="js/translations.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/transitions.js"></script>
+</body>
+</html>
