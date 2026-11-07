@@ -14,12 +14,12 @@
   overflow-x: clip;
 }
 
-/* Свечение под названием. Слой фиксирован к экрану (см. .glow-layer в base.css),
+/* Свечение под названием. Слой фиксирован к экрану (см. css/glow.css),
    центр на 70% высоты: под названием, и так же на всех страницах. Появляется только плавным нарастанием
    прозрачности: без «дыхания» и сдвигов, чтобы слой не перерисовывался. */
-.glow-layer .glow { animation: glow-fade 2.2s var(--ease-out) both; }
+.glow-layer .glow-root { animation: glow-fade 2.2s var(--ease-out) both; }
 /* Если пользователь пришёл с другой страницы сайта, свечение не гаснет заново. */
-.has-prev .glow-layer .glow { animation: none; }
+.has-prev .glow-layer .glow-root { animation: none; }
 
 /* Название.
    Размер считается от ширины экрана (12vw), с нижним и верхним пределом.

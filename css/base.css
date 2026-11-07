@@ -78,81 +78,8 @@ img, svg { display: block; max-width: 100%; }
   border-radius: 4px;
 }
 
-/* ---------- Свечение ---------- */
-/* Свечение фона. ОДИН слой на страницу, прикреплён к экрану (fixed).
-   Слой лежит вне <main>, поэтому не гаснет при переходах между страницами.
-   Высота слоя 100lvh (максимальная высота экрана): на телефоне при сворачивании
-   адресной строки слой не меняет размер и свечение не «прыгает».
-   Центр свечения задаётся переменной --glow-y. */
-.glow-layer {
-  --glow-y: 70%;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  height: 100lvh;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: -1;
-}
-.glow-layer .glow { top: var(--glow-y); }
-
-/* «Свет вещи» без тяжёлых перерисовок (см. js/glow.js): поверх обычного свечения лежат
-   слои с готовым цветом, а мы меняем только их прозрачность. Это делает видеокарта,
-   главный поток не нагружается, поэтому зум фото не пропускает кадры. */
-.glow-layer .glow { transition: opacity 0.8s ease; }
-.glow-layer .glow--tint {
-  --graphite: var(--tint);
-  opacity: 0;
-  will-change: opacity;
-}
-.glow-layer .glow--tint.is-on { opacity: 1; }
-.glow-layer.has-tint .glow:not(.glow--tint) { opacity: 0; }
-.glow-layer.no-tr .glow { transition: none; }
-
-/* Само свечение. Используется внутри .glow-layer (и на тестовой странице). */
-.glow {
-  position: absolute;
-  left: 50%;
-  width: 230vw;
-  max-width: 2200px;
-  aspect-ratio: 1.2 / 1;
-  transform: translate(-50%, -50%);
-  /* Дымка, а не пятно: три очень широких слоя с плавным (гауссовым) спадом
-     прозрачности. Плотного ядра нет, поэтому нет и видимого края.
-     Центр складывается примерно до 50%. Ярче нельзя: на самом светлом месте
-     приглушённый текст перестанет проходить контраст 4,5 : 1. */
-  background:
-    radial-gradient(closest-side,
-      color-mix(in srgb, var(--graphite) 30.0%, transparent) 0%,
-      color-mix(in srgb, var(--graphite) 27.5%, transparent) 15%,
-      color-mix(in srgb, var(--graphite) 21.2%, transparent) 30%,
-      color-mix(in srgb, var(--graphite) 13.7%, transparent) 45%,
-      color-mix(in srgb, var(--graphite) 7.5%, transparent) 60%,
-      color-mix(in srgb, var(--graphite) 3.4%, transparent) 75%,
-      color-mix(in srgb, var(--graphite) 1.3%, transparent) 90%,
-      transparent 100%) center / 100% 100% no-repeat,
-    radial-gradient(closest-side,
-      color-mix(in srgb, var(--graphite) 22.0%, transparent) 0%,
-      color-mix(in srgb, var(--graphite) 20.2%, transparent) 15%,
-      color-mix(in srgb, var(--graphite) 15.5%, transparent) 30%,
-      color-mix(in srgb, var(--graphite) 10.1%, transparent) 45%,
-      color-mix(in srgb, var(--graphite) 5.5%, transparent) 60%,
-      color-mix(in srgb, var(--graphite) 2.5%, transparent) 75%,
-      color-mix(in srgb, var(--graphite) 1.0%, transparent) 90%,
-      transparent 100%) center / 78% 88% no-repeat,
-    radial-gradient(closest-side,
-      color-mix(in srgb, var(--graphite) 8.0%, transparent) 0%,
-      color-mix(in srgb, var(--graphite) 7.3%, transparent) 15%,
-      color-mix(in srgb, var(--graphite) 5.7%, transparent) 30%,
-      color-mix(in srgb, var(--graphite) 3.7%, transparent) 45%,
-      color-mix(in srgb, var(--graphite) 2.0%, transparent) 60%,
-      color-mix(in srgb, var(--graphite) 0.9%, transparent) 75%,
-      color-mix(in srgb, var(--graphite) 0.4%, transparent) 90%,
-      transparent 100%) center / 54% 62% no-repeat;
-  pointer-events: none;
-}
+/* ---------- Свечение фона ----------
+   Весь код свечения лежит в css/glow.css (читайте комментарий в начале того файла). */
 
 /* ---------- Жидкое стекло ----------
    Стекло = размытие того, что за ним (backdrop-filter), тонкая светлая

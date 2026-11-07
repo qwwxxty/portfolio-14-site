@@ -1,0 +1,224 @@
+/*
+  PRYSMERK. Свечение фона: четыре больших мягких слоя.
+
+  КАК ЭТО СОБРАНО (читайте сверху вниз)
+
+  1. .glow-layer это один слой на весь экран: fixed, под всем содержимым, не ловит клики.
+  2. Внутри четыре слоя (.gl). У каждого своя роль и свой размер:
+       haze   широкая слабая дымка возле угла
+       sweep  вытянутый эллипс, повёрнутый на ~30°: диагональный «размах» от угла
+       core   самое светлое, но мягкое ядро там, где размах доходит до края
+       dark   едва заметная тёмная подсветка в противоположном углу
+  3. Каждый слой это градиент radial-gradient в виде эллипса с шестью остановками.
+     Яркость падает нелинейно: 100%, 80%, 50%, 25%, 8%, 0% от пика. Поэтому видимого края нет.
+     Размытие (filter: blur) не используется: оно тяжёлое для телефона.
+  4. Цвет у всех слоёв один (--g-c), но оттенки разные: haze темнее, sweep как есть,
+     core бледнее (разбавлен белым), dark темнее всех. Других цветов нет.
+  5. Размеры заданы в vmax (процент большей стороны экрана), поэтому на телефоне свечение
+     выглядит так же, как на компьютере, а не сжимается в угол.
+  6. Слои медленно плывут (только transform: сдвиг, поворот, масштаб). Периоды разные,
+     поэтому слои не двигаются синхронно.
+  7. Поверх лежит тонкий шум 4%. Он нужен, чтобы на тёмных градиентах не было ступенек.
+
+  КАК ПОПРАВИТЬ САМОМУ
+    --g-k            общая сила свечения (1 = «мягко», 0.6 = «ещё мягче», 1.4 = «заметнее»)
+    --a-haze/sweep/core/dark   пиковая прозрачность каждого слоя (0.30 означает 30%)
+    --gx --gy        где ядро: проценты экрана (0 0 левый верх, 100 100 правый низ)
+    --ga             угол размаха в градусах (минус: вверх вправо, плюс: вверх влево)
+*/
+
+.glow-layer {
+  /* Единицы. На сайте это проценты экрана. В пробе их подменяют на проценты блока. */
+  --u-w: 1vw;
+  --u-h: 1vh;
+  --u-m: 1vmax;
+
+  /* Цвет свечения. Берётся из colors.css; цвет меняется плавно (см. @property ниже) */
+  --g-c: var(--graphite);
+  transition: --g-c 0.7s ease;
+
+  /* Сила и яркость слоёв (пик прозрачности).
+     --g-k = 1.4 это выбранная сила «заметнее» (было 1 «мягко», 0.62 «ещё мягче»).
+     Пики слоёв подобраны так, чтобы самая светлая точка свечения не превышала ~56 из 255:
+     выше этого приглушённый текст (#a8a29a) теряет контраст 4,5 : 1. Пробный вариант без
+     ограничения был: haze .30, sweep .27, core .27 (максимум 85, красивее, но текст у углов
+     не проходил контраст). Хотите ярче ядро: поднимайте --a-core, но проверяйте контраст. */
+  --g-k: 1.4;
+  --a-haze: 0.30;
+  --a-sweep: 0.22;
+  --a-core: 0.08;
+  --a-dark: 0.08;
+
+  /* Композиция по умолчанию (главная): ядро внизу слева, размах вверх вправо */
+  --gx: 7;
+  --gy: 93;
+  --ga: -30;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100lvh;
+  overflow: hidden;
+  isolation: isolate;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Композиции. Ядро всегда с противоположной стороны от крупного текста.
+   Кроме четырёх основных есть две служебные: страница товара и информационные страницы. */
+.glow-layer[data-g="product"] { --gx: 6;  --gy: 94;  --ga: -28; }
+.glow-layer[data-g="info"]    { --gx: 8;  --gy: 96;  --ga: -24; }
+@media (max-width: 767px) {
+  .glow-layer[data-g="product"] { --gx: 94; --gy: 97; --ga: 30; }
+}
+
+.glow-layer[data-g="home"]  { --gx: 7;  --gy: 93;  --ga: -30; }
+.glow-layer[data-g="men"]   { --gx: 93; --gy: 90;  --ga: 30; }
+.glow-layer[data-g="women"] { --gx: 96; --gy: 78;  --ga: 9; }
+.glow-layer[data-g="kids"]  { --gx: 88; --gy: 99;  --ga: 36; }
+
+/* ---------- Слой ----------
+   Внешний элемент (.gl) задаёт место и угол и плавно переезжает при смене раздела.
+   Внутренний (.gl__in) несёт градиент и медленно плывёт. Так «переезд» и «плавание»
+   не мешают друг другу, и оба считаются на видеокарте (только transform). */
+.gl {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--u-m) * var(--w));
+  height: calc(var(--u-m) * var(--h));
+  margin: calc(var(--u-m) * var(--h) / -2) 0 0 calc(var(--u-m) * var(--w) / -2);
+  transform:
+    translate(calc((var(--cx) - 50) * var(--u-w)), calc((var(--cy) - 50) * var(--u-h)))
+    rotate(calc(var(--rot) * 1deg));
+  transition: transform 0.7s ease;
+}
+
+.gl__in {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse closest-side,
+    color-mix(in srgb, var(--c) calc(var(--a) * 100%), transparent) 0%,
+    color-mix(in srgb, var(--c) calc(var(--a) * 80%), transparent) 18%,
+    color-mix(in srgb, var(--c) calc(var(--a) * 50%), transparent) 38%,
+    color-mix(in srgb, var(--c) calc(var(--a) * 25%), transparent) 58%,
+    color-mix(in srgb, var(--c) calc(var(--a) * 8%), transparent) 78%,
+    transparent 100%
+  );
+  animation: gl-drift var(--T) ease-in-out infinite alternate;
+  /* Отрицательная задержка = «анимация уже идёт давно». JS подставляет --d (секунды),
+     поэтому при переходе на другую страницу слои продолжают с того же места. */
+  animation-delay: calc(var(--d, 0) * -1s);
+  will-change: transform;
+}
+
+@keyframes gl-drift {
+  from {
+    transform: translate3d(calc(var(--dx) * -1), calc(var(--dy) * -1), 0) rotate(calc(var(--dr) * -1)) scale(1);
+  }
+  to {
+    transform: translate3d(var(--dx), var(--dy), 0) rotate(var(--dr)) scale(1.08);
+  }
+}
+
+/* ---------- Четыре слоя ----------
+   --w и --h размеры в vmax; --cx и --cy центр слоя в процентах экрана;
+   --rot поворот; --c цвет-оттенок; --a пик прозрачности (умножается на --g-k);
+   --T период плавания; --dx --dy --dr размах плавания. */
+
+/* Дымка: широкая, самая слабая. Центр чуть ближе к середине экрана, чем ядро. */
+.gl--haze {
+  --w: 90; --h: 72;
+  --cx: calc(var(--gx) + (50 - var(--gx)) * 0.25);
+  --cy: calc(var(--gy) + (50 - var(--gy)) * 0.25);
+  --rot: 0;
+}
+.gl--haze .gl__in {
+  --c: color-mix(in srgb, var(--g-c) 72%, black);
+  --a: calc(var(--a-haze) * var(--g-k));
+  --T: 52s; --dx: calc(5 * var(--u-w)); --dy: calc(3 * var(--u-h)); --dr: 3deg;
+}
+
+/* Размах: вытянутый эллипс 150 x 46, повёрнутый на --ga. Центр между ядром и серединой. */
+.gl--sweep {
+  --w: 150; --h: 46;
+  --cx: calc(var(--gx) + (50 - var(--gx)) * 0.55);
+  --cy: calc(var(--gy) + (50 - var(--gy)) * 0.55);
+  --rot: var(--ga);
+}
+.gl--sweep .gl__in {
+  --c: color-mix(in srgb, var(--g-c) 90%, white);
+  --a: calc(var(--a-sweep) * var(--g-k));
+  --T: 36s; --dx: calc(4 * var(--u-w)); --dy: calc(5 * var(--u-h)); --dr: 6deg;
+}
+
+/* Ядро: радиус около 40 vmax, самое светлое, но мягкое и бледное (не белое). */
+.gl--core {
+  --w: 80; --h: 64;
+  --cx: var(--gx);
+  --cy: var(--gy);
+  --rot: 0;
+}
+.gl--core .gl__in {
+  --c: color-mix(in srgb, var(--g-c) 56%, white);
+  --a: calc(var(--a-core) * var(--g-k));
+  --T: 28s; --dx: calc(6 * var(--u-w)); --dy: calc(4 * var(--u-h)); --dr: 4deg;
+}
+
+/* Тёмная подсветка в противоположном углу, прозрачность до 8%. */
+.gl--dark {
+  --w: 70; --h: 56;
+  --cx: calc(100 - var(--gx));
+  --cy: calc(100 - var(--gy));
+  --rot: 0;
+}
+.gl--dark .gl__in {
+  --c: color-mix(in srgb, var(--g-c) 50%, black);
+  --a: calc(var(--a-dark) * var(--g-k));
+  --T: 44s; --dx: calc(4 * var(--u-w)); --dy: calc(3 * var(--u-h)); --dr: 3deg;
+}
+
+/* ---------- Шум против ступенек ----------
+   На тёмных градиентах яркость меняется ступеньками по одному уровню (banding).
+   Лёгкий шум размывает эти ступеньки. Режим overlay не трогает чистый чёрный фон:
+   шум виден только там, где есть свечение. */
+.gl-noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* ---------- Телефон: три слоя вместо четырёх ---------- */
+@media (max-width: 600px) {
+  .gl--dark { display: none; }
+}
+
+/* ---------- «Уменьшить движение»: свечение остаётся, но стоит на месте ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .gl__in { animation: none !important; }
+}
+
+/* ---------- Корень слоёв и «Свет вещи» ----------
+   Слои лежат внутри .glow-root. На странице товара js/glow.js кладёт рядом копию корня
+   с цветом вещи и плавно меняет прозрачность: перерисовывать градиент при этом не нужно. */
+.glow-root {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.8s ease;
+}
+.glow-root--tint { opacity: 0; will-change: opacity; }
+.glow-root--tint.is-on { opacity: 1; }
+.glow-layer.has-tint .glow-root:not(.glow-root--tint) {
+  opacity: 0;
+  visibility: hidden; /* после затухания не рисуется и не нагружает видеокарту */
+  transition: opacity 0.8s ease, visibility 0s linear 0.8s;
+}
+/* Служебный класс: поставить состояние мгновенно, без плавности (его включает glow.js) */
+.glow-layer.no-tr .glow-root,
+.glow-layer.no-tr .gl { transition: none !important; }
