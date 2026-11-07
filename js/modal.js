@@ -12,10 +12,16 @@
   var openModal = null;
   var lastFocus = null;
 
+  // Только то, что реально можно сфокусировать: скрытые ([hidden]) части окна не в счёте.
+  // Иначе Tab мог бы «провалиться» в скрытый шаг.
   function focusables(root) {
-    return root.querySelectorAll(
+    var all = root.querySelectorAll(
       'a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])'
     );
+    return Array.prototype.filter.call(all, function (el) {
+      if (el.closest("[hidden]")) return false;          // скрытый шаг окна, скрытая группа
+      return el.getClientRects().length > 0;             // занимает место на экране
+    });
   }
 
   function open(modal, opener) {

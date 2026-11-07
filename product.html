@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <title>PRYSMERK</title>
+  <!-- Название страницы выставляет product.js (там имя товара), поэтому data-title-key здесь нет -->
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000'/%3E%3Cpath d='M12 24V8h5.5a4.5 4.5 0 0 1 0 9H12' fill='none' stroke='%23ede8e0' stroke-width='1.6'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300&family=Onest:wght@300;400&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/colors.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/section.css">
+  <link rel="stylesheet" href="css/product.css">
+
+  <script>
+    /* До первой отрисовки: если мы пришли с плашки (анимация открытия), страница не
+       должна сама плавно проявляться, иначе «призрак» фото и настоящее фото разойдутся. */
+    try {
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!reduce && sessionStorage.getItem("prysmerk-hero")) document.documentElement.classList.add("has-hero");
+    } catch (e) {}
+  </script>
+</head>
+<body data-section="product">
+  <!-- Номер раздела берём из id товара: m- мужской, w- женский, k- детский.
+       Это нужно, чтобы меню отметило нужный раздел. Делаем сразу, до сборки меню. -->
+  <script>
+    (function () {
+      var id = new URLSearchParams(location.search).get("id") || "";
+      var map = { m: "men", w: "women", k: "kids" };
+      document.body.setAttribute("data-section", map[id.charAt(0)] || "product");
+    })();
+  </script>
+
+  <div class="glow-layer" aria-hidden="true"><div class="glow"></div></div>
+
+  <main class="product-page">
+    <div id="product"></div>
+  </main>
+
+  <!-- Окно заказа -->
+  <div class="modal" id="order" role="dialog" aria-modal="true" aria-labelledby="order-title" inert>
+    <div class="modal__scrim" data-close></div>
+    <div class="modal__panel glass">
+      <div class="modal__head">
+        <h2 class="modal__title" id="order-title" data-i18n="order.title">Замовлення</h2>
+        <button class="modal__close glass-btn" type="button" data-close data-i18n-aria="filters.close" aria-label="Закрити">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12"/><path d="M18 6L6 18"/></svg>
+        </button>
+      </div>
+
+      <!-- Форма только визуальная: нет action и method, данные никуда не отправляются.
+           Проверка выполняется в браузере (js/order.js). Поля карты не предусмотрены. -->
+      <form class="modal__form" id="order-form" novalidate autocomplete="off">
+        <div class="modal__body" id="order-body">
+          <p class="order__product" id="order-product"></p>
+
+          <!-- Шаг 1: размер, цвет, количество -->
+          <section class="step" id="step-1" aria-labelledby="step-1-title">
+            <h3 class="step__title" id="step-1-title" tabindex="-1" data-autofocus data-i18n="order.step1">Параметри</h3>
+
+            <fieldset class="group" id="grp-size">
+              <legend data-i18n="order.size">Розмір</legend>
+              <div class="chips" id="size-radios"></div>
+              <p class="field-error" id="err-size" role="alert" hidden></p>
+            </fieldset>
+
+            <fieldset class="group" id="grp-color">
+              <legend data-i18n="order.color">Колір</legend>
+              <div class="chips" id="color-radios"></div>
+              <p class="field-error" id="err-color" role="alert" hidden></p>
+            </fieldset>
+
+            <fieldset class="group" id="grp-qty">
+              <legend data-i18n="order.qty">Кількість</legend>
+              <div class="stepper">
+                <button class="stepper__btn" type="button" id="qty-minus" data-i18n-aria="order.qty.minus" aria-label="Зменшити кількість">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 12h12"/></svg>
+                </button>
+                <output class="stepper__value" id="qty-value" for="qty-minus qty-plus" aria-live="polite">0</output>
+                <button class="stepper__btn" type="button" id="qty-plus" data-i18n-aria="order.qty.plus" aria-label="Збільшити кількість">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 12h12"/><path d="M12 6v12"/></svg>
+                </button>
+              </div>
+              <p class="field-error" id="err-qty" role="alert" hidden></p>
+            </fieldset>
+
+            <p class="order__total" id="order-total" hidden></p>
+          </section>
+
+          <!-- Шаг 2: данные покупателя и оплата -->
+          <section class="step" id="step-2" aria-labelledby="step-2-title" hidden>
+            <h3 class="step__title" id="step-2-title" tabindex="-1" data-i18n="order.step2">Ваші дані</h3>
+
+            <div class="field-row">
+              <label class="field">
+                <span class="field__label" data-i18n="order.first">Ім’я</span>
+                <span class="field__box"><input class="field__input" id="f-first" type="text" maxlength="40" autocomplete="off" autocapitalize="words" spellcheck="false" aria-describedby="err-first"></span>
+              </label>
+              <p class="field-error" id="err-first" role="alert" hidden></p>
+            </div>
+
+            <div class="field-row">
+              <label class="field">
+                <span class="field__label" data-i18n="order.last">Прізвище</span>
+                <span class="field__box"><input class="field__input" id="f-last" type="text" maxlength="40" autocomplete="off" autocapitalize="words" spellcheck="false" aria-describedby="err-last"></span>
+              </label>
+              <p class="field-error" id="err-last" role="alert" hidden></p>
+            </div>
+
+            <div class="field-row">
+              <label class="field">
+                <span class="field__label"><span data-i18n="order.phone">Номер телефону</span> <span class="field__hint" data-i18n="order.phone.hint">+380 і 9 цифр</span></span>
+                <span class="field__box"><input class="field__input" id="f-phone" type="tel" inputmode="tel" maxlength="20" placeholder="+380 67 123 45 67" autocomplete="off" spellcheck="false" aria-describedby="err-phone"></span>
+              </label>
+              <p class="field-error" id="err-phone" role="alert" hidden></p>
+            </div>
+
+            <fieldset class="group" id="grp-pay">
+              <legend data-i18n="order.pay">Спосіб оплати</legend>
+              <div class="chips">
+                <label class="chip-radio"><input type="radio" name="pay" value="cod"><span data-i18n="order.pay.cod">Накладений платіж</span></label>
+                <label class="chip-radio"><input type="radio" name="pay" value="card"><span data-i18n="order.pay.card">Онлайн карткою</span></label>
+              </div>
+              <p class="order__note" data-i18n="order.pay.note">Дані картки на сайті не збираються.</p>
+              <p class="field-error" id="err-pay" role="alert" hidden></p>
+            </fieldset>
+          </section>
+
+          <!-- Шаг 3: готово -->
+          <section class="step" id="step-3" aria-labelledby="step-3-title" hidden>
+            <h3 class="step__title" id="step-3-title" tabindex="-1" data-i18n="order.done.title">Замовлення прийнято (демо)</h3>
+            <p class="order__note" data-i18n="order.done.text">Це демонстраційний сайт. Дані нікуди не надсилалися і не зберігалися.</p>
+            <dl class="summary" id="order-summary"></dl>
+            <div class="step__actions">
+              <button class="btn" type="button" data-close data-i18n="order.done.close">Закрити</button>
+            </div>
+          </section>
+        </div>
+
+        <div class="modal__foot" id="order-foot">
+          <button class="btn btn--ghost" type="button" id="btn-back" data-i18n="order.back" hidden>Назад</button>
+          <button class="btn" type="button" id="btn-next" data-i18n="order.continue">Продовжити</button>
+          <button class="btn" type="submit" id="btn-submit" data-i18n="order.submit" hidden>Підтвердити замовлення</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Порядок важен: переводы, язык, каркас, переходы, окна, данные, анимация, заказ, страница -->
+  <script src="js/translations.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/transitions.js"></script>
+  <script src="js/modal.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/hero.js"></script>
+  <script src="js/order.js"></script>
+  <script src="js/product.js"></script>
+</body>
+</html>

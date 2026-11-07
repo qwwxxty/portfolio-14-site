@@ -41,18 +41,9 @@
   var rows = [];            // { id, section, track, navItem }
   var state = { sort: null, colors: {}, sizes: {}, min: null, max: null };
 
-  /* ---------- Цена ---------- */
-  function priceKey() { return i18n.getLang() === "en" ? "usd" : "uah"; }
-
-  // Число форматируем сами (разделитель тысяч), знак валюты добавляем отдельно:
-  // так в украинской версии всегда «₴», а в английской «$».
-  var numberFormats = {};
-  function formatPrice(p) {
-    var lang = i18n.getLang();
-    if (!numberFormats[lang]) numberFormats[lang] = new Intl.NumberFormat(lang === "en" ? "en-US" : "uk-UA", { maximumFractionDigits: 0 });
-    var n = numberFormats[lang].format(p.price[priceKey()]);
-    return lang === "en" ? "$" + n : n + "\u00a0\u20b4";
-  }
+  /* ---------- Цена (общий помощник из data.js) ---------- */
+  var priceKey = P.data.priceKey;
+  var formatPrice = P.data.formatPrice;
 
   /* ---------- Данные ---------- */
   function sectionProducts() {
@@ -400,6 +391,16 @@
     if (!statusEl.hidden && statusEl.getAttribute("data-i18n")) statusEl.textContent = t(statusEl.getAttribute("data-i18n"));
   });
 
+  /* ---------- Открытие товара ---------- */
+  catalogEl.addEventListener("click", function (e) {
+    var a = e.target.closest ? e.target.closest("a.tile") : null;
+    if (!a || e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (!P.hero || !P.hero.available()) return; // «уменьшить движение»: обычный переход
+    e.preventDefault();
+    P.hero.start(a);
+  });
+
   /* ---------- Запуск ---------- */
   function init(json) {
     data = json;
@@ -419,11 +420,7 @@
 
   i18n.apply(document);
 
-  fetch("data/products.json")
-    .then(function (r) {
-      if (!r.ok) throw new Error("HTTP " + r.status);
-      return r.json();
-    })
+  P.data.load()
     .then(init)
     .catch(function () {
       showStatus("catalog.error");
