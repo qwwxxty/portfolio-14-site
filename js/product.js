@@ -21,6 +21,47 @@
   var heroData = P.hero.showGhost(id);
 
   var product = null;
+  var colorMap = {};
+
+  /* ---------- Свет вещи ----------
+     Свечение берёт цвет самой вещи. Но цвета вещей разной яркости: чёрная вещь дала бы
+     невидимый свет, молочная слишком яркий, и приглушённый текст на нём перестал бы
+     читаться. Поэтому цвет подгоняется по яркости: в центре свечение складывается
+     примерно до 50% цвета, и эта яркость держится в допустимых пределах. */
+  var GLOW_STORE = "prysmerk-glow";
+  var PEAK = 0.5;
+  var L_MIN = 0.02;   // не темнее: иначе света не видно
+  var L_MAX = 0.036;  // не светлее: иначе текст не пройдёт контраст 4,5 : 1
+
+  function hexToRgb(hex) { return [1, 3, 5].map(function (i) { return parseInt(hex.substr(i, 2), 16); }); }
+  function lin(c) { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
+  function lum(rgb) { return 0.2126 * lin(rgb[0]) + 0.7152 * lin(rgb[1]) + 0.0722 * lin(rgb[2]); }
+  function scaled(rgb, k) { return rgb.map(function (v) { return Math.max(0, Math.min(255, v * k)); }); }
+  function toHex(rgb) { return "#" + rgb.map(function (v) { return ("0" + Math.round(v).toString(16)).slice(-2); }).join(""); }
+
+  function glowFor(hex) {
+    var base = hexToRgb(hex);
+    if (lum(base) < 0.0005) base = [34, 34, 38]; // совсем чёрный: берём тёмно-серый, цвета в нём нет
+    var k = 1;
+    var peak = function (kk) { return lum(scaled(scaled(base, kk), PEAK)); };
+    if (peak(k) > L_MAX) {
+      var lo = 0.01, hi = 1;
+      for (var i = 0; i < 24; i++) { var mid = (lo + hi) / 2; if (peak(mid) > L_MAX) hi = mid; else lo = mid; }
+      k = lo;
+    } else if (peak(k) < L_MIN) {
+      var lo2 = 1, hi2 = 12;
+      for (var j = 0; j < 24; j++) { var m2 = (lo2 + hi2) / 2; if (peak(m2) < L_MIN) lo2 = m2; else hi2 = m2; }
+      k = hi2;
+    }
+    return toHex(scaled(base, k));
+  }
+
+  function setGlow(hex) {
+    if (!HEX.test(hex || "")) return;
+    var c = glowFor(hex);
+    document.documentElement.style.setProperty("--product-glow", c);
+    try { sessionStorage.setItem(GLOW_STORE, c); } catch (e) { /* ничего */ }
+  }
   var infoEl = null;
   var mainPhoto = null;
   var orderBtn = null;
@@ -129,6 +170,7 @@
     var p = data.products.filter(function (x) { return x.id === id; })[0];
     if (!p) { status("product.notfound"); return; }
     product = p;
+    colorMap = data.colors;
 
     var toneRaw = data.colors[p.colors[0]];
     var tone = HEX.test(toneRaw || "") ? toneRaw : "#3b3b40";
@@ -157,9 +199,16 @@
     renderInfo();
     i18n.apply(root);
 
+    setGlow(tone); // свет вещи
+
     // Открытие с плашки: главное фото едет из прежнего места на своё
     if (heroData) P.hero.play(mainPhoto, id);
   }
+
+  // Выбрали цвет в окне заказа: свет становится цветом этой вещи
+  document.addEventListener("prysmerk:color", function (e) {
+    if (e.detail && colorMap[e.detail.color]) setGlow(colorMap[e.detail.color]);
+  });
 
   document.addEventListener("prysmerk:lang", function () {
     if (!product || !infoEl) return;

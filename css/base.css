@@ -91,6 +91,14 @@ img, svg { display: block; max-width: 100%; }
 }
 .glow-layer .glow { top: var(--glow-y); }
 
+/* Цвет свечения = --product-glow (обычно это тот же графит). Когда он меняется,
+   например на странице товара, свет плавно перетекает в новый цвет. */
+.glow-layer {
+  --graphite: var(--product-glow);
+  transition: --graphite 0.8s ease;
+}
+.glow-layer.no-tr { transition: none; }
+
 /* Само свечение. Используется внутри .glow-layer (и на тестовой странице). */
 .glow {
   position: absolute;

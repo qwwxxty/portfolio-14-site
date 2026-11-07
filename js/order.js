@@ -138,7 +138,11 @@
     }));
     // цвета: если цвет у вещи один, выбор скрыт и цвет выбран сам
     colorBox.replaceChildren.apply(colorBox, p.colors.map(function (c) {
-      return radioChip("color", c, "color." + c, function (v) { state.color = v; clearError($("err-color")); });
+      return radioChip("color", c, "color." + c, function (v) {
+        state.color = v;
+        clearError($("err-color"));
+        document.dispatchEvent(new CustomEvent("prysmerk:color", { detail: { color: v } }));
+      });
     }));
     if (p.colors.length === 1) { grpColor.hidden = true; state.color = p.colors[0]; }
     else grpColor.hidden = false;

@@ -1,10 +1,5 @@
 /* PRYSMERK. Страница товара и окно заказа */
 
-/* Свечение на странице товара: по умолчанию графитовое, как везде.
-   Если захочется вернуть «Свет вещи» (свечение в цвет самой вещи),
-   достаточно менять --product-glow из product.js, остальное готово. */
-.glow-layer { --graphite: var(--product-glow); }
-
 .product-page {
   --pad: var(--gutter);
   padding-top: var(--topbar-space);
