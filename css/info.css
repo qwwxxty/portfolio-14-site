@@ -1,0 +1,94 @@
+/* PRYSMERK. Информационные страницы: о бренде, политика, доставка, возврат, контакты */
+
+.info-page {
+  --pad: var(--page-pad);
+  padding-top: var(--topbar-space);
+  padding-bottom: 6vh;
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+.info { padding: 0 var(--pad); }
+
+.info__title {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(1.7rem, 7.4vw, 4.2rem);
+  line-height: 1.12;
+  overflow-wrap: break-word;
+}
+
+.info__body { margin-top: 9vh; }
+
+.info__demo {
+  max-width: 46ch;
+  padding-left: 14px;
+  border-left: 1px solid var(--ivory);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--ink-dim);
+}
+
+.info__section { margin-top: 8vh; }
+.info__section h2 {
+  margin-bottom: 14px;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 1.0625rem;
+  line-height: 1.3;
+}
+.info__section p {
+  max-width: 58ch;
+  font-size: 0.9375rem;
+  line-height: 1.8;
+  color: var(--ink-dim);
+}
+.info__section p + p { margin-top: 12px; }
+.info__demo + .info__section { margin-top: 7vh; }
+
+/* О бренде: история крупнее, с воздухом между абзацами */
+.info__lead {
+  max-width: 34ch;
+  font-size: 1.125rem;
+  line-height: 1.75;
+  color: var(--ink);
+}
+.info__lead + .info__lead { margin-top: 3.2rem; }
+
+.info__dna { margin-top: 14vh; }
+.info__dna-list { margin-top: 28px; display: grid; gap: 7vh; }
+.dna__item { max-width: 30ch; }
+.dna__title {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(1.4rem, 6vw, 2.4rem);
+  line-height: 1.2;
+}
+.dna__text {
+  margin-top: 0.8rem;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--ink-dim);
+}
+.info__dna + .info__demo { margin-top: 12vh; }
+
+/* ---------- Компьютер: заголовок слева и закреплён, текст в правой колонке ---------- */
+@media (min-width: 1024px) {
+  .info {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 24px;
+    align-items: start;
+  }
+  .info__title {
+    grid-column: 1 / 7;
+    position: sticky;
+    top: var(--topbar-space);
+    font-size: clamp(2.8rem, 5vw, 5.4rem);
+  }
+  .info__body { grid-column: 7 / 13; margin-top: 0.8rem; }
+  .info__lead { max-width: 36ch; font-size: 1.25rem; }
+  .info__dna-list { grid-template-columns: 1fr 1fr; column-gap: 40px; }
+  .dna__item:nth-child(2) { margin-top: 5vh; }
+  .dna__item:nth-child(3) { grid-column: 1 / 2; }
+}

@@ -24,6 +24,27 @@ python3 serve.py
 
 Unbounded (заголовки) і Onest (текст) із Google Fonts. Файли лежать у `fonts/`, тому сторінка не чекає зовнішній сервер. Знак гривні ₴ лежить у підмножині `cyrillic-ext`, тому вона підключена теж.
 
+## Структура
+
+```
+index.html            головна
+section.html          розділ (?s=men | women | kids): підрозділи, ряди плашок, фільтри
+product.html         товар (?id=...): фото, опис, вікно замовлення
+about / privacy / delivery / returns / contacts .html   інформаційні сторінки
+css/                  colors.css (усі кольори), fonts.css, base.css, home/section/product/info.css
+js/                   translations.js (усі тексти), i18n, layout (меню, футер), data (товари, ціни),
+                      catalog, product, order (форма), hero (анімація відкриття), glow, modal, transitions
+data/products.json    товари (ціни в гривнях і доларах задані вручну, курс не рахується)
+fonts/                Unbounded і Onest (файли Google Fonts)
+serve.py              локальний сервер
+```
+
+## Безпека
+
+- У репозиторії немає ключів і паролів, `.gitignore` захищає `.env`, `*.key`, `*.pem` та подібне.
+- Дані з форми й полів фільтра ніколи не вставляються в сторінку як розмітка (немає `innerHTML`): тільки `textContent`.
+- Форма замовлення візуальна: нічого не надсилає і не зберігає. Полів для номера картки немає.
+
 ## Мови
 
 Інтерфейс українською й англійською. Українська: ціни в гривнях. Англійська: у доларах.
