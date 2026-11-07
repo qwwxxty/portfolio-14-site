@@ -163,6 +163,8 @@
   outline: none;
 }
 .step__actions { margin-top: 26px; }
+/* Основная кнопка шага всегда справа, как «Підтвердити» на втором шаге */
+#btn-next { margin-left: auto; }
 
 .order__total {
   margin-top: 18px;
@@ -238,19 +240,43 @@
 .summary dt { color: var(--ink-dim); }
 .summary dd { margin: 0; color: var(--ink); }
 
-/* ---------- Планшет и компьютер (первая версия, дорабатывается на этапе 4) ---------- */
-@media (min-width: 1024px) {
-  .product-page { --pad: clamp(32px, 5vw, 80px); }
+/* ---------- Планшет и компьютер ----------
+   От 768 px: фото слева, текст справа (две колонки). Другие фото на планшете остаются
+   лентой под главным, на компьютере (от 1024 px) встают колонкой справа от него. */
+@media (min-width: 768px) {
+  .product-page { --pad: clamp(24px, 4vw, 56px); }
   .product {
     display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-    gap: clamp(32px, 5vw, 96px);
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: clamp(28px, 5vw, 96px);
     align-items: start;
+    padding: 0 var(--pad);
   }
-  /* Другие фото справа от главного */
-  .product__media { display: grid; grid-template-columns: minmax(0, 1fr) 24%; gap: 14px; align-items: start; }
-  .product__media .photo--main { max-width: none; }
-  .gallery { flex-direction: column; margin: 0; padding: 0; overflow: visible; scroll-snap-type: none; }
-  .gallery .photo { flex: none; max-width: none; }
-  .product__info { padding: 8px 0 0; position: sticky; top: var(--topbar-space); }
+  .product__media { padding: 0; }
+  .photo--main { max-width: none; }
+  .gallery { margin: 12px 0 0; padding: 4px 0 10px; }
+  .gallery .photo { flex: 0 0 38%; }
+  .product__info { padding: 4px 0 0; position: sticky; top: var(--topbar-space); }
+}
+
+@media (min-width: 1024px) {
+  .product-page { --pad: var(--page-pad); }
+  .product { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); }
+  /* Другие фото справа от главного; колонка ровно той же высоты, что и главное фото */
+  .product__media {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 23%;
+    gap: 14px;
+    align-items: stretch;
+  }
+  .gallery {
+    display: grid;
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+  .gallery .photo { flex: none; max-width: none; min-height: 0; aspect-ratio: auto; height: 100%; }
 }

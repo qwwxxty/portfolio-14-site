@@ -131,3 +131,55 @@
 }
 
 .enter__list > li + li { margin-top: 1.2rem; }
+
+/* ---------- Компьютер ----------
+   Асимметрия: крупный заголовок слева, короткий текст в правой колонке на уровне его низа;
+   три принципа в ряд, каждый на своей высоте; разделы сдвинуты в правую половину. */
+@media (min-width: 1024px) {
+  .credo,
+  .dna,
+  .enter {
+    padding-left: var(--page-pad);
+    padding-right: var(--page-pad);
+  }
+
+  .credo {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 24px;
+    align-items: end;
+    padding-top: 30vh;
+  }
+  .credo__title {
+    grid-column: 1 / 8;
+    max-width: none;
+    font-size: clamp(3rem, 5.4vw, 6rem);
+    line-height: 1.1;
+  }
+  .credo__text {
+    grid-column: 9 / 13;
+    margin-top: 0;
+    padding-bottom: 0.6rem;
+    font-size: 1rem;
+  }
+
+  .dna {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: clamp(24px, 5vw, 96px);
+    align-items: start;
+    padding-top: 26vh;
+  }
+  .dna__item + .dna__item { margin-top: 0; }
+  .dna__item:nth-child(2) { margin-top: 14vh; }
+  .dna__item:nth-child(3) { margin-top: 6vh; }
+  .dna__title { font-size: clamp(2rem, 3vw, 3.2rem); }
+  .dna__text { font-size: 1rem; }
+
+  .enter {
+    padding-top: 30vh;
+    padding-left: max(42%, var(--page-pad));
+  }
+  .enter__link { font-size: clamp(2.4rem, 4.4vw, 5rem); }
+  .enter__list > li + li { margin-top: 1.6rem; }
+}

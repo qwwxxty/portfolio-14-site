@@ -14,6 +14,9 @@
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
   --gutter: 24px;
+  /* Боковое поле страницы. На телефоне 24 px, на компьютере растёт с шириной экрана,
+     а на очень широких экранах контент перестаёт растягиваться (колонка до 1600 px по центру). */
+  --page-pad: var(--gutter);
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
@@ -21,6 +24,10 @@
 
   /* место под кнопку меню: первый блок страницы не должен заходить под неё */
   --topbar-space: calc(var(--safe-top) + 80px);
+}
+
+@media (min-width: 1024px) {
+  :root { --page-pad: max(clamp(32px, 5vw, 96px), calc((100vw - 1600px) / 2)); }
 }
 
 /* ---------- Сброс ---------- */
@@ -643,6 +650,22 @@ body.is-leaving .topbar {
   color: var(--ink);
   background: rgba(255, 255, 255, 0.05);
   border-color: var(--ivory);
+}
+
+/* Футер на компьютере: название слева, ссылки в одну строку справа, пометка под названием */
+@media (min-width: 1024px) {
+  .footer {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas: "brand nav" "note nav";
+    column-gap: 64px;
+    align-items: end;
+    padding: 22vh var(--page-pad) calc(44px + var(--safe-bottom));
+  }
+  .footer__brand { grid-area: brand; margin-bottom: 0; }
+  .footer__note { grid-area: note; margin-top: 16px; }
+  .footer__nav { grid-area: nav; justify-self: end; }
+  .footer__nav ul { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px 32px; }
 }
 
 /* ---------- Уменьшить движение ----------

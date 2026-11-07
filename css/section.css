@@ -376,7 +376,9 @@ body.is-hero-leaving .tile.is-chosen .tile__info {
 
 /* ---------- Компьютер: 6 плашек в ряду ---------- */
 @media (min-width: 1024px) {
-  .section-page { --pad: clamp(32px, 5vw, 80px); --gap: 18px; }
+  .section-page { --pad: var(--page-pad); --gap: 18px; }
+  /* Все 9 подразделов должны помещаться целиком */
+  .subnav { width: min(calc(100vw - 148px), 1080px); }
   .track {
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
