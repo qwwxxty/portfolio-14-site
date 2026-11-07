@@ -72,25 +72,26 @@ img, svg { display: block; max-width: 100%; }
 }
 
 /* ---------- Свечение ---------- */
-/* Общее мягкое свечение у нижнего края экрана. Живёт на всех страницах. */
-body::before {
-  content: "";
+/* Свечение фона. ОДИН слой на страницу, прикреплён к экрану (fixed).
+   Слой лежит вне <main>, поэтому не гаснет при переходах между страницами.
+   Высота слоя 100lvh (максимальная высота экрана): на телефоне при сворачивании
+   адресной строки слой не меняет размер и свечение не «прыгает».
+   Центр свечения задаётся переменной --glow-y. */
+.glow-layer {
+  --glow-y: 52%;
   position: fixed;
-  left: 50%;
-  bottom: -38vh;
-  width: 150vw;
-  height: 70vh;
-  transform: translateX(-50%);
-  background:
-    radial-gradient(closest-side, color-mix(in srgb, var(--c-main) calc(26% * var(--glow-k)), transparent), transparent) center / 60% 80% no-repeat,
-    radial-gradient(closest-side, color-mix(in srgb, var(--c-main) calc(14% * var(--glow-k)), transparent), transparent) center / 100% 100% no-repeat;
-  filter: blur(40px);
-  opacity: 0.55;
-  z-index: -1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100lvh;
+  overflow: hidden;
   pointer-events: none;
+  z-index: -1;
 }
+.glow-layer .glow { top: var(--glow-y); }
 
-/* Главное свечение. Кладётся внутрь блока, под которым должен быть свет. */
+/* Само свечение. Используется внутри .glow-layer (и на тестовой странице). */
 .glow {
   position: absolute;
   left: 50%;
@@ -113,9 +114,7 @@ body::before {
       color-mix(in srgb, var(--c-main) calc(10% * var(--glow-k)), transparent) 0%,
       color-mix(in srgb, var(--c-main) calc(5% * var(--glow-k)), transparent) 55%,
       transparent 100%) center / 100% 100% no-repeat;
-  filter: blur(60px);
   pointer-events: none;
-  z-index: -1;
 }
 
 /* ---------- Жидкое стекло ----------
@@ -153,6 +152,26 @@ body::before {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
+/* Подсветка при наведении, нажатии и фокусе: второй цвет раздела.
+   Фон светится основным цветом, кнопки вторым, поэтому они не сливаются. */
+.glass-btn { transition: border-color 0.3s ease, box-shadow 0.4s ease, transform 0.4s var(--ease-out); }
+@media (hover: hover) {
+  .glass-btn:hover {
+    border-color: color-mix(in srgb, var(--c-2) 75%, transparent);
+    box-shadow:
+      0 0 34px -6px color-mix(in srgb, var(--c-2) 70%, transparent),
+      0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+}
+.glass-btn:active,
+.glass-btn:focus-visible,
+.glass-btn.is-lit {
+  border-color: color-mix(in srgb, var(--c-2) 85%, transparent);
+  box-shadow:
+    0 0 38px -4px color-mix(in srgb, var(--c-2) 85%, transparent),
+    0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
 /* Запасной вариант: браузер не умеет размывать фон, делаем непрозрачный тёмный */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass,
@@ -182,7 +201,7 @@ body::before {
 .drawer__close svg { position: relative; }
 
 @media (hover: hover) {
-  .menu-btn:hover { transform: scale(1.06); border-color: rgba(255, 255, 255, 0.28); }
+  .menu-btn:hover { transform: scale(1.06); }
 }
 .menu-btn:active { transform: scale(0.96); }
 
@@ -243,7 +262,7 @@ body::before {
   color: var(--ink-dim);
   transition: color 0.3s ease, border-color 0.3s ease;
 }
-.drawer__close:hover { color: var(--ink); border-color: rgba(255, 255, 255, 0.28); }
+.drawer__close:hover { color: var(--ink); }
 
 .drawer__nav {
   position: relative;
@@ -280,8 +299,8 @@ body::before {
 }
 
 /* Пункт раздела (меню и главная).
-   Свечение: два слоя radial-gradient из основного цвета раздела, без чёткого края.
-   Подчёркивание: тонкая линия в втором цвете раздела под текстом. */
+   Свечение: два слоя radial-gradient второго цвета раздела, без чёткого края.
+   Подчёркивание: тонкая линия третьего цвета раздела под текстом. */
 .drawer__link[data-s]::before,
 .enter__link[data-s]::before {
   content: "";
@@ -289,9 +308,8 @@ body::before {
   inset: -22px -52px;
   z-index: -1;
   background:
-    radial-gradient(closest-side, color-mix(in srgb, var(--s-main) 55%, transparent), transparent) center / 70% 80% no-repeat,
-    radial-gradient(closest-side, color-mix(in srgb, var(--s-main) 30%, transparent), transparent) center / 100% 100% no-repeat;
-  filter: blur(14px);
+    radial-gradient(closest-side, color-mix(in srgb, var(--s-2) 85%, transparent), transparent) center / 70% 80% no-repeat,
+    radial-gradient(closest-side, color-mix(in srgb, var(--s-2) 50%, transparent), transparent) center / 100% 100% no-repeat;
   opacity: 0;
   transition: opacity 0.4s ease;
   pointer-events: none;
@@ -309,7 +327,7 @@ body::before {
   right: 0;
   bottom: -7px;
   height: 1px;
-  background: var(--s-2);
+  background: var(--s-3);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.45s var(--ease-out);
@@ -510,7 +528,7 @@ body.is-leaving .topbar {
   color: var(--ink-dim);
   transition: color 0.3s ease, border-color 0.3s ease;
 }
-.modal__close:hover { color: var(--ink); border-color: rgba(255, 255, 255, 0.28); }
+.modal__close:hover { color: var(--ink); }
 
 .modal__body {
   position: relative;
@@ -545,7 +563,7 @@ body.is-leaving .topbar {
 }
 .btn:active { transform: scale(0.97); }
 @media (hover: hover) {
-  .btn:hover { background: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.34); }
+  .btn:hover { background: rgba(255, 255, 255, 0.2); border-color: var(--c-2); }
 }
 .btn--ghost {
   padding: 0 8px;
@@ -578,7 +596,7 @@ body.is-leaving .topbar {
   transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
 }
 @media (hover: hover) {
-  .chip:hover { color: var(--ink); border-color: rgba(255, 255, 255, 0.3); }
+  .chip:hover { color: var(--ink); border-color: color-mix(in srgb, var(--c-2) 70%, transparent); }
 }
 .chip[aria-pressed="true"] {
   color: var(--ink);
