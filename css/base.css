@@ -78,7 +78,7 @@ img, svg { display: block; max-width: 100%; }
    адресной строки слой не меняет размер и свечение не «прыгает».
    Центр свечения задаётся переменной --glow-y. */
 .glow-layer {
-  --glow-y: 52%;
+  --glow-y: 70%;
   position: fixed;
   top: 0;
   left: 0;
@@ -103,16 +103,16 @@ img, svg { display: block; max-width: 100%; }
      центре примерно до 46% (это и есть «середина свечения»), к краю тают в чёрный. */
   background:
     radial-gradient(closest-side,
-      color-mix(in srgb, var(--c-main) calc(28% * var(--glow-k)), transparent) 0%,
-      color-mix(in srgb, var(--c-main) calc(15% * var(--glow-k)), transparent) 45%,
+      color-mix(in srgb, var(--graphite) 28%, transparent) 0%,
+      color-mix(in srgb, var(--graphite) 15%, transparent) 45%,
       transparent 100%) center / 44% 62% no-repeat,
     radial-gradient(closest-side,
-      color-mix(in srgb, var(--c-main) calc(17% * var(--glow-k)), transparent) 0%,
-      color-mix(in srgb, var(--c-main) calc(9% * var(--glow-k)), transparent) 50%,
+      color-mix(in srgb, var(--graphite) 17%, transparent) 0%,
+      color-mix(in srgb, var(--graphite) 9%, transparent) 50%,
       transparent 100%) center / 72% 100% no-repeat,
     radial-gradient(closest-side,
-      color-mix(in srgb, var(--c-main) calc(10% * var(--glow-k)), transparent) 0%,
-      color-mix(in srgb, var(--c-main) calc(5% * var(--glow-k)), transparent) 55%,
+      color-mix(in srgb, var(--graphite) 10%, transparent) 0%,
+      color-mix(in srgb, var(--graphite) 5%, transparent) 55%,
       transparent 100%) center / 100% 100% no-repeat;
   pointer-events: none;
 }
@@ -124,7 +124,7 @@ img, svg { display: block; max-width: 100%; }
   position: relative;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.03) 60%),
-    color-mix(in srgb, var(--c-main) 9%, rgba(18, 18, 20, 0.35));
+    color-mix(in srgb, var(--graphite) 9%, rgba(18, 18, 20, 0.35));
   -webkit-backdrop-filter: blur(26px) saturate(180%);
   backdrop-filter: blur(26px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.18);
@@ -152,23 +152,23 @@ img, svg { display: block; max-width: 100%; }
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
-/* Подсветка при наведении, нажатии и фокусе: второй цвет раздела.
-   Фон светится основным цветом, кнопки вторым, поэтому они не сливаются. */
+/* Подсветка при наведении, нажатии и фокусе: слоновая кость.
+   Фон светится графитом, кнопки слоновой костью, поэтому они не сливаются. */
 .glass-btn { transition: border-color 0.3s ease, box-shadow 0.4s ease, transform 0.4s var(--ease-out); }
 @media (hover: hover) {
   .glass-btn:hover {
-    border-color: color-mix(in srgb, var(--c-2) 75%, transparent);
+    border-color: color-mix(in srgb, var(--ivory) 60%, transparent);
     box-shadow:
-      0 0 34px -6px color-mix(in srgb, var(--c-2) 70%, transparent),
+      0 0 34px -8px color-mix(in srgb, var(--ivory) 45%, transparent),
       0 8px 24px rgba(0, 0, 0, 0.35);
   }
 }
 .glass-btn:active,
 .glass-btn:focus-visible,
 .glass-btn.is-lit {
-  border-color: color-mix(in srgb, var(--c-2) 85%, transparent);
+  border-color: color-mix(in srgb, var(--ivory) 75%, transparent);
   box-shadow:
-    0 0 38px -4px color-mix(in srgb, var(--c-2) 85%, transparent),
+    0 0 38px -6px color-mix(in srgb, var(--ivory) 55%, transparent),
     0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
@@ -235,7 +235,7 @@ img, svg { display: block; max-width: 100%; }
   /* полупрозрачный фон: сквозь него видно свечение страницы */
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02) 60%),
-    color-mix(in srgb, var(--c-main) 8%, rgba(10, 10, 12, 0.34));
+    color-mix(in srgb, var(--graphite) 8%, rgba(10, 10, 12, 0.34));
   transform: translateX(calc(-100% - 24px));
   visibility: hidden;
   transition: transform 0.55s var(--ease-out), visibility 0s 0.55s;
@@ -299,8 +299,8 @@ img, svg { display: block; max-width: 100%; }
 }
 
 /* Пункт раздела (меню и главная).
-   Свечение: два слоя radial-gradient второго цвета раздела, без чёткого края.
-   Подчёркивание: тонкая линия третьего цвета раздела под текстом. */
+   Свечение: два слоя radial-gradient цвета слоновой кости, без чёткого края.
+   Подчёркивание: тонкая линия цвета слоновой кости под текстом. */
 .drawer__link[data-s]::before,
 .enter__link[data-s]::before {
   content: "";
@@ -308,8 +308,8 @@ img, svg { display: block; max-width: 100%; }
   inset: -22px -52px;
   z-index: -1;
   background:
-    radial-gradient(closest-side, color-mix(in srgb, var(--s-2) 62%, transparent), transparent) center / 70% 80% no-repeat,
-    radial-gradient(closest-side, color-mix(in srgb, var(--s-2) 36%, transparent), transparent) center / 100% 100% no-repeat;
+    radial-gradient(closest-side, color-mix(in srgb, var(--ivory) 30%, transparent), transparent) center / 70% 80% no-repeat,
+    radial-gradient(closest-side, color-mix(in srgb, var(--ivory) 16%, transparent), transparent) center / 100% 100% no-repeat;
   opacity: 0;
   transition: opacity 0.4s ease;
   pointer-events: none;
@@ -327,7 +327,7 @@ img, svg { display: block; max-width: 100%; }
   right: 0;
   bottom: -7px;
   height: 1px;
-  background: var(--s-3);
+  background: var(--ivory);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.45s var(--ease-out);
@@ -393,7 +393,7 @@ img, svg { display: block; max-width: 100%; }
 .lang__btn[aria-pressed="true"] {
   background: rgba(255, 255, 255, 0.06);
   color: var(--ink);
-  border-color: color-mix(in srgb, var(--c-2) 80%, transparent);
+  border-color: color-mix(in srgb, var(--ivory) 80%, transparent);
 }
 
 /* ---------- Вход на страницу и уход ---------- */
@@ -488,7 +488,7 @@ body.is-leaving .topbar {
   overflow: hidden;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02) 60%),
-    color-mix(in srgb, var(--c-main) 8%, rgba(10, 10, 12, 0.5));
+    color-mix(in srgb, var(--graphite) 8%, rgba(10, 10, 12, 0.5));
   opacity: 0;
   transform: translateY(48px) scale(0.98);
   transition: opacity 0.45s ease, transform 0.6s var(--ease-out);
@@ -563,7 +563,7 @@ body.is-leaving .topbar {
 }
 .btn:active { transform: scale(0.97); }
 @media (hover: hover) {
-  .btn:hover { background: rgba(255, 255, 255, 0.2); border-color: var(--c-2); }
+  .btn:hover { background: rgba(255, 255, 255, 0.2); border-color: var(--ivory); }
 }
 .btn--ghost {
   padding: 0 8px;
@@ -596,12 +596,12 @@ body.is-leaving .topbar {
   transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
 }
 @media (hover: hover) {
-  .chip:hover { color: var(--ink); border-color: color-mix(in srgb, var(--c-2) 70%, transparent); }
+  .chip:hover { color: var(--ink); border-color: color-mix(in srgb, var(--ivory) 70%, transparent); }
 }
 .chip[aria-pressed="true"] {
   color: var(--ink);
   background: rgba(255, 255, 255, 0.05);
-  border-color: var(--c-2);
+  border-color: var(--ivory);
 }
 
 /* ---------- Уменьшить движение ----------

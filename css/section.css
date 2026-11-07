@@ -7,8 +7,6 @@
   padding-bottom: 6vh;
 }
 
-/* Свечение фона раздела: один фиксированный слой (см. .glow-layer в base.css) */
-.glow-layer { --glow-y: 52%; }
 
 /* ---------- Заголовок и кнопка фильтров ---------- */
 .section-head {
@@ -40,18 +38,18 @@
   font-size: 0.9375rem;
   font-weight: 400;
   color: var(--ink);
-  border-color: color-mix(in srgb, var(--c-2) 45%, transparent);
+  border-color: color-mix(in srgb, var(--ivory) 30%, transparent);
   box-shadow:
-    0 0 36px -10px color-mix(in srgb, var(--c-2) 60%, transparent),
+    0 0 36px -12px color-mix(in srgb, var(--ivory) 40%, transparent),
     0 8px 24px rgba(0, 0, 0, 0.35);
   transition: transform 0.4s var(--ease-out), border-color 0.3s ease, box-shadow 0.4s ease;
 }
 @media (hover: hover) {
   .filters-btn:hover {
     transform: translateY(-2px);
-    border-color: var(--c-2);
+    border-color: color-mix(in srgb, var(--ivory) 65%, transparent);
     box-shadow:
-      0 0 46px -4px color-mix(in srgb, var(--c-2) 85%, transparent),
+      0 0 46px -8px color-mix(in srgb, var(--ivory) 55%, transparent),
       0 8px 24px rgba(0, 0, 0, 0.35);
   }
 }
@@ -65,7 +63,7 @@
   padding: 0 6px;
   border-radius: 999px;
   font-size: 0.75rem;
-  border: 1px solid color-mix(in srgb, var(--c-2) 80%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ivory) 80%, transparent);
 }
 
 /* ---------- Список подразделов сверху по центру ---------- */
@@ -123,7 +121,7 @@ body.is-leaving .subnav { opacity: 0; }
 @media (hover: hover) {
   .subnav__link:hover { color: var(--ink); }
 }
-/* Выбранный пункт: текст светлее и тонкое подчёркивание третьим цветом раздела */
+/* Выбранный пункт: текст светлее и тонкое подчёркивание цветом слоновой кости */
 .subnav__link { position: relative; }
 .subnav__link::after {
   content: "";
@@ -132,7 +130,7 @@ body.is-leaving .subnav { opacity: 0; }
   right: 16px;
   bottom: 7px;
   height: 1px;
-  background: var(--c-3);
+  background: var(--ivory);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.45s var(--ease-out);
@@ -188,14 +186,14 @@ body.is-leaving .subnav { opacity: 0; }
 @media (hover: hover) {
   .tile:hover { transform: translateY(-5px); }
 }
-/* Подсветка плашки: тонкая рамка и мягкое свечение второго цвета */
+/* Подсветка плашки: тонкая рамка и мягкое свечение цвета слоновой кости */
 .tile:hover,
 .tile:focus-visible,
 .tile.is-lit {
-  border-color: color-mix(in srgb, var(--c-2) 75%, transparent);
+  border-color: color-mix(in srgb, var(--ivory) 55%, transparent);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 0 46px -10px color-mix(in srgb, var(--c-2) 85%, transparent);
+    0 0 46px -12px color-mix(in srgb, var(--ivory) 50%, transparent);
 }
 .tile:active { transform: scale(0.985); }
 
@@ -249,7 +247,7 @@ body.is-leaving .subnav { opacity: 0; }
   margin-top: 2px;
   font-size: 0.8125rem;
   line-height: 1.3;
-  color: var(--c-3);
+  color: var(--ink-dim);
 }
 
 /* Появление: плашки выезжают слева направо, по очереди (задержка задаётся из JS).
@@ -320,7 +318,7 @@ body.is-leaving .subnav { opacity: 0; }
   border: 1px solid rgba(255, 255, 255, 0.16);
   transition: border-color 0.3s ease;
 }
-.field__box:focus-within { border-color: var(--c-2); }
+.field__box:focus-within { border-color: var(--ivory); }
 .field__input {
   flex: 1;
   min-width: 0;
