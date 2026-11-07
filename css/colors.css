@@ -86,6 +86,7 @@
 }
 
 /* Цвета пункта раздела (меню, главная): у каждого пункта свой раздел */
+[data-s="home"]  { --s-2: var(--home-2);  --s-3: var(--home-3); }
 [data-s="men"]   { --s-2: var(--men-2);   --s-3: var(--men-3); }
 [data-s="women"] { --s-2: var(--women-2); --s-3: var(--women-3); }
 [data-s="kids"]  { --s-2: var(--kids-2);  --s-3: var(--kids-3); }

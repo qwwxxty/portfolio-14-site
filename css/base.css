@@ -308,8 +308,8 @@ img, svg { display: block; max-width: 100%; }
   inset: -22px -52px;
   z-index: -1;
   background:
-    radial-gradient(closest-side, color-mix(in srgb, var(--s-2) 85%, transparent), transparent) center / 70% 80% no-repeat,
-    radial-gradient(closest-side, color-mix(in srgb, var(--s-2) 50%, transparent), transparent) center / 100% 100% no-repeat;
+    radial-gradient(closest-side, color-mix(in srgb, var(--s-2) 62%, transparent), transparent) center / 70% 80% no-repeat,
+    radial-gradient(closest-side, color-mix(in srgb, var(--s-2) 36%, transparent), transparent) center / 100% 100% no-repeat;
   opacity: 0;
   transition: opacity 0.4s ease;
   pointer-events: none;

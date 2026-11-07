@@ -44,6 +44,7 @@
   }
 
   var SECTIONS = [
+    { id: "home", key: "nav.home", href: "index.html" },
     { id: "men", key: "nav.men", href: "section.html?s=men" },
     { id: "women", key: "nav.women", href: "section.html?s=women" },
     { id: "kids", key: "nav.kids", href: "section.html?s=kids" }

@@ -13,6 +13,7 @@ window.PRYSMERK_I18N = {
     "menu.title": "Меню",
     "menu.sections": "Розділи",
 
+    "nav.home": "Головна",
     "nav.men": "Чоловічий одяг",
     "nav.women": "Жіночий одяг",
     "nav.kids": "Дитячий одяг",
@@ -101,6 +102,7 @@ window.PRYSMERK_I18N = {
     "menu.title": "Menu",
     "menu.sections": "Sections",
 
+    "nav.home": "Home",
     "nav.men": "Menswear",
     "nav.women": "Womenswear",
     "nav.kids": "Kidswear",
