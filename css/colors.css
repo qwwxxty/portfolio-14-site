@@ -1,0 +1,89 @@
+/*
+  PRYSMERK. ВСЕ ЦВЕТА САЙТА ЛЕЖАТ ТОЛЬКО В ЭТОМ ФАЙЛЕ.
+  Больше нигде в CSS и JS нет ни одного HEX-цвета палитры.
+
+  У каждого раздела пять цветов:
+    main  основной. Из него строится только свечение (слоями radial-gradient).
+    mid   середина свечения: каким цвет должен выглядеть в центре. Справочное.
+    edge  край свечения: каким цвет должен выглядеть у края. Справочное.
+    2     второй. Только тонкие линии, рамки и состояния выбора.
+    3     третий. Только мелкие детали: цена, метки.
+
+  mid и edge это тот же main с прозрачностью около 46% и 12% поверх чёрного.
+  Поэтому свечение строится из одного main, а mid и edge проверяют результат.
+*/
+
+:root {
+  --bg: #000000;
+
+  /* Текст */
+  --ink: #ede8e0;        /* основной */
+  --ink-dim: #a8a29a;    /* приглушённый */
+  --hairline: rgba(237, 232, 224, 0.14);
+  --error: #e6aaa3;      /* ошибка в форме */
+
+  /* Главная */
+  --home-main: #5a4a8c;
+  --home-mid: #2a2145;
+  --home-edge: #0b0912;
+  --home-2: #5e8f78;
+  --home-3: #9c6b62;
+
+  /* Мужской */
+  --men-main: #3555b5;
+  --men-mid: #16265a;
+  --men-edge: #070a14;
+  --men-2: #8e9b5a;
+  --men-3: #a8465e;
+
+  /* Женский */
+  --women-main: #8a2447;
+  --women-mid: #3f1226;
+  --women-edge: #12070b;
+  --women-2: #8fa383;
+  --women-3: #6e86b8;
+
+  /* Детский */
+  --kids-main: #b98c3a;
+  --kids-mid: #4a3817;
+  --kids-edge: #120d05;
+  --kids-2: #5e9c8a;
+  --kids-3: #8f7bb8;
+
+  /* Время плавной смены свечения между разделами: 0,6-0,8 с */
+  --glow-time: 0.7s;
+}
+
+/* Регистрация цветов. Без этого браузер не умеет плавно менять
+   значение переменной, и цвет сменился бы рывком. */
+@property --c-main { syntax: "<color>"; inherits: true; initial-value: #5a4a8c; }
+@property --c-mid  { syntax: "<color>"; inherits: true; initial-value: #2a2145; }
+@property --c-edge { syntax: "<color>"; inherits: true; initial-value: #0b0912; }
+@property --c-2    { syntax: "<color>"; inherits: true; initial-value: #5e8f78; }
+@property --c-3    { syntax: "<color>"; inherits: true; initial-value: #9c6b62; }
+@property --glow-k { syntax: "<number>"; inherits: true; initial-value: 1; }
+
+/* --glow-k: сила свечения раздела. Подогнана так, чтобы центр свечения, собранный
+   из одного main, совпал с «серединой» (mid). Детское золото темнеет в коричневый
+   быстрее синего, поэтому там слабее. */
+
+/* Активная схема: берётся из data-section на body (или на любом блоке) */
+[data-section="home"]  { --c-main: var(--home-main);  --c-mid: var(--home-mid);  --c-edge: var(--home-edge);  --c-2: var(--home-2);  --c-3: var(--home-3); --glow-k: 1.02; }
+[data-section="men"]   { --c-main: var(--men-main);   --c-mid: var(--men-mid);   --c-edge: var(--men-edge);   --c-2: var(--men-2);   --c-3: var(--men-3); --glow-k: 1; }
+[data-section="women"] { --c-main: var(--women-main); --c-mid: var(--women-mid); --c-edge: var(--women-edge); --c-2: var(--women-2); --c-3: var(--women-3); --glow-k: 1.08; }
+[data-section="kids"]  { --c-main: var(--kids-main);  --c-mid: var(--kids-mid);  --c-edge: var(--kids-edge);  --c-2: var(--kids-2);  --c-3: var(--kids-3); --glow-k: 0.87; }
+
+[data-section] {
+  transition:
+    --c-main var(--glow-time) ease,
+    --c-mid var(--glow-time) ease,
+    --c-edge var(--glow-time) ease,
+    --c-2 var(--glow-time) ease,
+    --c-3 var(--glow-time) ease,
+    --glow-k var(--glow-time) ease;
+}
+
+/* Цвета пункта раздела (меню, главная): у каждого пункта свой раздел */
+[data-s="men"]   { --s-main: var(--men-main);   --s-2: var(--men-2); }
+[data-s="women"] { --s-main: var(--women-main); --s-2: var(--women-2); }
+[data-s="kids"]  { --s-main: var(--kids-main);  --s-2: var(--kids-2); }

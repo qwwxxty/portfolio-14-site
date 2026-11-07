@@ -277,11 +277,7 @@
     });
 
     Object.keys(data.colors).filter(function (c) { return colorsUsed[c]; }).forEach(function (c) {
-      var swatch = h("span", { class: "chip__swatch", "aria-hidden": "true" });
-      if (HEX.test(data.colors[c])) swatch.style.setProperty("--tone", data.colors[c]);
-      var chip = h("button", { class: "chip", type: "button", "data-color": c, "aria-pressed": "false" }, [
-        swatch, h("span", { "data-i18n": "color." + c })
-      ]);
+      var chip = h("button", { class: "chip", type: "button", "data-color": c, "aria-pressed": "false", "data-i18n": "color." + c });
       colorChips.appendChild(chip);
     });
 

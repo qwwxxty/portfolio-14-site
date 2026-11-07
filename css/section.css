@@ -44,13 +44,15 @@
   font-size: 0.9375rem;
   font-weight: 400;
   color: var(--ink);
+  border-color: color-mix(in srgb, var(--c-2) 60%, transparent);
   box-shadow:
-    0 0 38px -4px color-mix(in srgb, var(--glow) 75%, transparent),
+    0 0 42px -6px color-mix(in srgb, var(--c-main) 85%, transparent),
+    0 0 90px -20px color-mix(in srgb, var(--c-main) 55%, transparent),
     0 8px 24px rgba(0, 0, 0, 0.35);
   transition: transform 0.4s var(--ease-out), border-color 0.3s ease;
 }
 @media (hover: hover) {
-  .filters-btn:hover { transform: translateY(-2px); border-color: rgba(255, 255, 255, 0.32); }
+  .filters-btn:hover { transform: translateY(-2px); border-color: var(--c-2); }
 }
 .filters-btn:active { transform: scale(0.97); }
 
@@ -62,7 +64,7 @@
   padding: 0 6px;
   border-radius: 999px;
   font-size: 0.75rem;
-  background: rgba(255, 255, 255, 0.22);
+  border: 1px solid color-mix(in srgb, var(--c-2) 80%, transparent);
 }
 
 /* ---------- Список подразделов сверху по центру ---------- */
@@ -120,12 +122,22 @@ body.is-leaving .subnav { opacity: 0; }
 @media (hover: hover) {
   .subnav__link:hover { color: var(--ink); }
 }
-/* Выбранный пункт мягко подсвечен цветом раздела */
-.subnav__link[aria-current="true"] {
-  color: var(--ink);
-  background: color-mix(in srgb, var(--glow) 30%, rgba(255, 255, 255, 0.06));
-  box-shadow: 0 0 26px -2px color-mix(in srgb, var(--glow) 55%, transparent);
+/* Выбранный пункт: текст светлее и тонкое подчёркивание вторым цветом раздела */
+.subnav__link { position: relative; }
+.subnav__link::after {
+  content: "";
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 7px;
+  height: 1px;
+  background: var(--c-2);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.45s var(--ease-out);
 }
+.subnav__link[aria-current="true"] { color: var(--ink); }
+.subnav__link[aria-current="true"]::after { transform: scaleX(1); }
 
 /* ---------- Ряды ---------- */
 .row {
@@ -173,7 +185,16 @@ body.is-leaving .subnav { opacity: 0; }
   transition: transform 0.55s var(--ease-out), border-color 0.35s ease;
 }
 @media (hover: hover) {
-  .tile:hover { transform: translateY(-5px); border-color: rgba(255, 255, 255, 0.28); }
+  .tile:hover { transform: translateY(-5px); }
+}
+/* Подсветка плашки: тонкая рамка второго цвета и мягкое свечение основного */
+.tile:hover,
+.tile:focus-visible,
+.tile.is-lit {
+  border-color: color-mix(in srgb, var(--c-2) 75%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 46px -10px color-mix(in srgb, var(--c-main) 80%, transparent);
 }
 .tile:active { transform: scale(0.985); }
 
@@ -227,7 +248,7 @@ body.is-leaving .subnav { opacity: 0; }
   margin-top: 2px;
   font-size: 0.8125rem;
   line-height: 1.3;
-  color: var(--ink-dim);
+  color: var(--c-3);
 }
 
 /* Появление: плашки выезжают слева направо, по очереди (задержка задаётся из JS).
@@ -286,7 +307,7 @@ body.is-leaving .subnav { opacity: 0; }
   display: block;
   margin-bottom: 6px;
   font-size: 0.8125rem;
-  color: var(--ink-faint);
+  color: var(--ink-dim);
 }
 .field__box {
   display: flex;
@@ -298,7 +319,7 @@ body.is-leaving .subnav { opacity: 0; }
   border: 1px solid rgba(255, 255, 255, 0.16);
   transition: border-color 0.3s ease;
 }
-.field__box:focus-within { border-color: rgba(255, 255, 255, 0.4); }
+.field__box:focus-within { border-color: var(--c-2); }
 .field__input {
   flex: 1;
   min-width: 0;
@@ -312,13 +333,13 @@ body.is-leaving .subnav { opacity: 0; }
   border: 0;
   outline: 0;
 }
-.field__unit { flex: none; margin-left: 8px; font-size: 0.875rem; color: var(--ink-faint); }
+.field__unit { flex: none; margin-left: 8px; font-size: 0.875rem; color: var(--ink-dim); }
 
 .field-error {
   margin-top: 12px;
   font-size: 0.8125rem;
   line-height: 1.5;
-  color: #e9a3a3;
+  color: var(--error);
 }
 
 /* ---------- Планшет ---------- */

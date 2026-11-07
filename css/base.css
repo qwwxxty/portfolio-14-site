@@ -3,27 +3,15 @@
   кнопка меню, окно меню, футер.
 */
 
-/* ---------- Цвета и размеры (токены) ----------
-   Токен: имя, под которым хранится значение. Меняешь цвет здесь,
-   и он меняется везде, где стоит var(--имя). */
+/* ---------- Размеры и шрифты (токены) ----------
+   Токен: имя, под которым хранится значение. Меняешь здесь,
+   и он меняется везде, где стоит var(--имя).
+   Цвета лежат отдельно, в css/colors.css. */
 :root {
-  --bg: #000;
-  --ink: #ece8e1;
-  --ink-dim: rgba(236, 232, 225, 0.66);
-  --ink-faint: rgba(236, 232, 225, 0.5);
-  --hairline: rgba(236, 232, 225, 0.14);
-
-  /* свечение по разделам */
-  --c-home: #2a2145;
-  --c-men: #1f51ff;
-  --c-women: #7f1734;
-  --c-kids: #e3a82b;
-
   --font-display: "Unbounded", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-body: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --glow-time: 0.7s;
 
   --gutter: 24px;
   --safe-top: env(safe-area-inset-top, 0px);
@@ -33,14 +21,6 @@
 
   /* место под кнопку меню: первый блок страницы не должен заходить под неё */
   --topbar-space: calc(var(--safe-top) + 80px);
-}
-
-/* Регистрация --glow как цвета. Без этого браузер не умеет плавно
-   менять значение переменной, и цвет сменился бы рывком. */
-@property --glow {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: #2a2145;
 }
 
 /* ---------- Сброс ---------- */
@@ -69,15 +49,8 @@ body {
   background: transparent;
   overflow-x: clip;
   -webkit-font-smoothing: antialiased;
-
-  --glow: var(--c-home);
-  transition: --glow var(--glow-time) ease;
 }
 
-body[data-section="home"] { --glow: var(--c-home); }
-body[data-section="men"] { --glow: var(--c-men); }
-body[data-section="women"] { --glow: var(--c-women); }
-body[data-section="kids"] { --glow: var(--c-kids); }
 
 body.menu-open,
 body.modal-open {
@@ -108,7 +81,9 @@ body::before {
   width: 150vw;
   height: 70vh;
   transform: translateX(-50%);
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--glow) 34%, transparent), transparent);
+  background:
+    radial-gradient(closest-side, color-mix(in srgb, var(--c-main) calc(26% * var(--glow-k)), transparent), transparent) center / 60% 80% no-repeat,
+    radial-gradient(closest-side, color-mix(in srgb, var(--c-main) calc(14% * var(--glow-k)), transparent), transparent) center / 100% 100% no-repeat;
   filter: blur(40px);
   opacity: 0.55;
   z-index: -1;
@@ -123,17 +98,22 @@ body::before {
   max-width: 2000px;
   aspect-ratio: 1.45 / 1;
   transform: translate(-50%, -50%);
-  /* Много плавных ступеней вместо одной: нет ядра и нет края,
-     свет растворяется в чёрном постепенно. */
-  background: radial-gradient(closest-side,
-    color-mix(in srgb, var(--glow) 100%, transparent) 0%,
-    color-mix(in srgb, var(--glow) 82%, transparent) 16%,
-    color-mix(in srgb, var(--glow) 56%, transparent) 32%,
-    color-mix(in srgb, var(--glow) 32%, transparent) 50%,
-    color-mix(in srgb, var(--glow) 14%, transparent) 68%,
-    color-mix(in srgb, var(--glow) 4%, transparent) 84%,
-    transparent 100%);
-  filter: blur(70px);
+  /* Три слоя разного размера, все из одного основного цвета. Складываются в
+     центре примерно до 46% (это и есть «середина свечения»), к краю тают в чёрный. */
+  background:
+    radial-gradient(closest-side,
+      color-mix(in srgb, var(--c-main) calc(28% * var(--glow-k)), transparent) 0%,
+      color-mix(in srgb, var(--c-main) calc(15% * var(--glow-k)), transparent) 45%,
+      transparent 100%) center / 44% 62% no-repeat,
+    radial-gradient(closest-side,
+      color-mix(in srgb, var(--c-main) calc(17% * var(--glow-k)), transparent) 0%,
+      color-mix(in srgb, var(--c-main) calc(9% * var(--glow-k)), transparent) 50%,
+      transparent 100%) center / 72% 100% no-repeat,
+    radial-gradient(closest-side,
+      color-mix(in srgb, var(--c-main) calc(10% * var(--glow-k)), transparent) 0%,
+      color-mix(in srgb, var(--c-main) calc(5% * var(--glow-k)), transparent) 55%,
+      transparent 100%) center / 100% 100% no-repeat;
+  filter: blur(60px);
   pointer-events: none;
   z-index: -1;
 }
@@ -145,7 +125,7 @@ body::before {
   position: relative;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.03) 60%),
-    color-mix(in srgb, var(--glow) 9%, rgba(18, 18, 20, 0.35));
+    color-mix(in srgb, var(--c-main) 9%, rgba(18, 18, 20, 0.35));
   -webkit-backdrop-filter: blur(26px) saturate(180%);
   backdrop-filter: blur(26px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.18);
@@ -236,7 +216,7 @@ body::before {
   /* полупрозрачный фон: сквозь него видно свечение страницы */
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02) 60%),
-    color-mix(in srgb, var(--glow) 8%, rgba(10, 10, 12, 0.34));
+    color-mix(in srgb, var(--c-main) 8%, rgba(10, 10, 12, 0.34));
   transform: translateX(calc(-100% - 24px));
   visibility: hidden;
   transition: transform 0.55s var(--ease-out), visibility 0s 0.55s;
@@ -299,26 +279,43 @@ body::before {
   background: var(--hairline);
 }
 
-/* Свечение пункта раздела. Цвет берётся из data-s. Без чёткого края:
-   размытое радиальное пятно, которое плавно проявляется за текстом. */
-[data-s="men"] { --c: var(--c-men); }
-[data-s="women"] { --c: var(--c-women); }
-[data-s="kids"] { --c: var(--c-kids); }
-
+/* Пункт раздела (меню и главная).
+   Свечение: два слоя radial-gradient из основного цвета раздела, без чёткого края.
+   Подчёркивание: тонкая линия в втором цвете раздела под текстом. */
 .drawer__link[data-s]::before,
 .enter__link[data-s]::before {
   content: "";
   position: absolute;
-  inset: -18px -48px;
+  inset: -22px -52px;
   z-index: -1;
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--c) 62%, transparent), transparent);
-  filter: blur(16px);
+  background:
+    radial-gradient(closest-side, color-mix(in srgb, var(--s-main) 55%, transparent), transparent) center / 70% 80% no-repeat,
+    radial-gradient(closest-side, color-mix(in srgb, var(--s-main) 30%, transparent), transparent) center / 100% 100% no-repeat;
+  filter: blur(14px);
   opacity: 0;
   transition: opacity 0.4s ease;
   pointer-events: none;
 }
 
-/* Выбран, нажат (телефон) или в фокусе: текст светлее, свечение включено.
+.drawer__link[data-s] > span,
+.enter__link[data-s] > span {
+  position: relative;
+}
+.drawer__link[data-s] > span::after,
+.enter__link[data-s] > span::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -7px;
+  height: 1px;
+  background: var(--s-2);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.45s var(--ease-out);
+}
+
+/* Выбран, нажат (телефон) или в фокусе: текст светлее, свечение и линия включены.
    Наведение работает только там, где есть мышь. */
 .drawer__link[aria-current="page"],
 .drawer__link[data-s]:active,
@@ -334,11 +331,20 @@ body::before {
 .enter__link[data-s]:focus-visible::before {
   opacity: 0.75;
 }
+.drawer__link[aria-current="page"] > span::after,
+.drawer__link[data-s]:active > span::after,
+.drawer__link[data-s]:focus-visible > span::after,
+.enter__link[data-s]:active > span::after,
+.enter__link[data-s]:focus-visible > span::after {
+  transform: scaleX(1);
+}
 @media (hover: hover) {
   .drawer__link:hover,
   .enter__link:hover { color: var(--ink); }
   .drawer__link[data-s]:hover::before,
   .enter__link[data-s]:hover::before { opacity: 0.75; }
+  .drawer__link[data-s]:hover > span::after,
+  .enter__link[data-s]:hover > span::after { transform: scaleX(1); }
 }
 
 .drawer__foot {
@@ -360,15 +366,16 @@ body::before {
   min-height: 44px;
   padding: 0 16px;
   border-radius: 999px;
+  border: 1px solid transparent;
   font-size: 0.875rem;
   letter-spacing: 0.08em;
   color: var(--ink-dim);
-  transition: background-color 0.35s ease, color 0.35s ease;
+  transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
 }
 .lang__btn[aria-pressed="true"] {
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--ink);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  border-color: color-mix(in srgb, var(--c-2) 80%, transparent);
 }
 
 /* ---------- Вход на страницу и уход ---------- */
@@ -421,7 +428,7 @@ body.is-leaving .topbar {
   max-width: 34ch;
   font-size: 0.8125rem;
   line-height: 1.6;
-  color: var(--ink-faint);
+  color: var(--ink-dim);
 }
 
 /* ---------- Окно (модальное) ----------
@@ -463,7 +470,7 @@ body.is-leaving .topbar {
   overflow: hidden;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02) 60%),
-    color-mix(in srgb, var(--glow) 8%, rgba(10, 10, 12, 0.5));
+    color-mix(in srgb, var(--c-main) 8%, rgba(10, 10, 12, 0.5));
   opacity: 0;
   transform: translateY(48px) scale(0.98);
   transition: opacity 0.45s ease, transform 0.6s var(--ease-out);
@@ -575,17 +582,8 @@ body.is-leaving .topbar {
 }
 .chip[aria-pressed="true"] {
   color: var(--ink);
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.34);
-}
-
-.chip__swatch {
-  flex: none;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--tone);
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--c-2);
 }
 
 /* ---------- Уменьшить движение ----------
