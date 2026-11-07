@@ -30,6 +30,9 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
+
+  /* место под кнопку меню: первый блок страницы не должен заходить под неё */
+  --topbar-space: calc(var(--safe-top) + 80px);
 }
 
 /* Регистрация --glow как цвета. Без этого браузер не умеет плавно
@@ -133,10 +136,9 @@ body::before {
     color-mix(in srgb, var(--glow) 9%, rgba(18, 18, 20, 0.35));
   -webkit-backdrop-filter: blur(26px) saturate(180%);
   backdrop-filter: blur(26px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.38),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
     0 18px 50px rgba(0, 0, 0, 0.5);
 }
 
@@ -149,8 +151,21 @@ body::before {
   pointer-events: none;
 }
 
+/* Круглые кнопки из стекла: тонкая граница 1 px, без толстой обводки */
+.glass-btn {
+  position: relative;
+  background: rgba(255, 255, 255, 0.07);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* Запасной вариант: браузер не умеет размывать фон, делаем непрозрачный тёмный */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass { background: rgba(24, 24, 27, 0.94); }
+  .glass,
+  .glass-btn { background: rgb(22, 22, 25); }
+  .drawer { background: rgb(18, 18, 21); }
 }
 
 /* ---------- Кнопка меню ---------- */
@@ -171,10 +186,11 @@ body::before {
   transition: transform 0.4s var(--ease-out), border-color 0.3s ease;
 }
 
-.menu-btn svg { position: relative; }
+.menu-btn svg,
+.drawer__close svg { position: relative; }
 
 @media (hover: hover) {
-  .menu-btn:hover { transform: scale(1.06); border-color: rgba(255, 255, 255, 0.3); }
+  .menu-btn:hover { transform: scale(1.06); border-color: rgba(255, 255, 255, 0.28); }
 }
 .menu-btn:active { transform: scale(0.96); }
 
@@ -183,7 +199,7 @@ body::before {
   position: fixed;
   inset: 0;
   z-index: 40;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.38);
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.5s ease, visibility 0s 0.5s;
@@ -200,11 +216,15 @@ body::before {
   bottom: calc(var(--safe-bottom) + 10px);
   left: calc(var(--safe-left) + 10px);
   z-index: 50;
-  width: min(86vw, 360px);
+  width: min(80vw, 360px);
   display: flex;
   flex-direction: column;
   padding: 14px 28px 28px;
   border-radius: 32px;
+  /* полупрозрачный фон: сквозь него видно свечение страницы */
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02) 60%),
+    color-mix(in srgb, var(--glow) 8%, rgba(10, 10, 12, 0.34));
   transform: translateX(calc(-100% - 24px));
   visibility: hidden;
   transition: transform 0.55s var(--ease-out), visibility 0s 0.55s;
@@ -223,16 +243,15 @@ body::before {
 }
 
 .drawer__close {
-  position: relative;
   display: grid;
   place-items: center;
   width: 48px;
   height: 48px;
   border-radius: 50%;
   color: var(--ink-dim);
-  transition: color 0.3s ease;
+  transition: color 0.3s ease, border-color 0.3s ease;
 }
-.drawer__close:hover { color: var(--ink); }
+.drawer__close:hover { color: var(--ink); border-color: rgba(255, 255, 255, 0.28); }
 
 .drawer__nav {
   position: relative;
@@ -242,48 +261,73 @@ body::before {
 .drawer__list > li + li { margin-top: 4px; }
 
 .drawer__link {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 16px;
   min-height: 56px;
   font-family: var(--font-display);
   font-weight: 300;
   font-size: 2rem;
   line-height: 1.1;
   color: var(--ink-dim);
-  transition: color 0.3s ease, transform 0.45s var(--ease-out);
-}
-.drawer__link:hover,
-.drawer__link[aria-current="page"] { color: var(--ink); }
-@media (hover: hover) {
-  .drawer__link:hover { transform: translateX(6px); }
+  transition: color 0.4s ease;
 }
 
+/* «Про бренд»: отдельный уровень, мельче и тише, ниже линии */
 .drawer__link--quiet {
-  font-size: 1.5rem;
-  min-height: 52px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  min-height: 48px;
 }
 
 .drawer__rule {
   height: 1px;
-  margin: 22px 0 14px;
+  margin: 22px 0 10px;
   background: var(--hairline);
 }
 
-.dot {
-  flex: none;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--dot);
-  box-shadow: 0 0 14px 1px var(--dot);
-}
-.dot[data-s="men"] { --dot: var(--c-men); }
-.dot[data-s="women"] { --dot: var(--c-women); }
-.dot[data-s="kids"] { --dot: var(--c-kids); }
+/* Свечение пункта раздела. Цвет берётся из data-s. Без чёткого края:
+   размытое радиальное пятно, которое плавно проявляется за текстом. */
+[data-s="men"] { --c: var(--c-men); }
+[data-s="women"] { --c: var(--c-women); }
+[data-s="kids"] { --c: var(--c-kids); }
 
-/* Выбранный раздел: тонкая подсветка строки */
-.drawer__link[aria-current="page"] .dot { transform: scale(1.35); }
+.drawer__link[data-s]::before,
+.enter__link[data-s]::before {
+  content: "";
+  position: absolute;
+  inset: -18px -48px;
+  z-index: -1;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--c) 62%, transparent), transparent);
+  filter: blur(16px);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+/* Выбран, нажат (телефон) или в фокусе: текст светлее, свечение включено.
+   Наведение работает только там, где есть мышь. */
+.drawer__link[aria-current="page"],
+.drawer__link[data-s]:active,
+.drawer__link:focus-visible,
+.enter__link[data-s]:active,
+.enter__link:focus-visible {
+  color: var(--ink);
+}
+.drawer__link[aria-current="page"]::before,
+.drawer__link[data-s]:active::before,
+.drawer__link[data-s]:focus-visible::before,
+.enter__link[data-s]:active::before,
+.enter__link[data-s]:focus-visible::before {
+  opacity: 0.75;
+}
+@media (hover: hover) {
+  .drawer__link:hover,
+  .enter__link:hover { color: var(--ink); }
+  .drawer__link[data-s]:hover::before,
+  .enter__link[data-s]:hover::before { opacity: 0.75; }
+}
 
 .drawer__foot {
   position: relative;

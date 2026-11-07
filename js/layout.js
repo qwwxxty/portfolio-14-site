@@ -62,7 +62,7 @@
 
   /* ---------- Кнопка меню ---------- */
   var menuBtn = h("button", {
-    class: "menu-btn glass",
+    class: "menu-btn glass-btn",
     type: "button",
     "aria-expanded": "false",
     "aria-controls": "site-drawer",
@@ -75,14 +75,13 @@
   var scrim = h("div", { class: "scrim", "aria-hidden": "true" });
 
   var closeBtn = h("button", {
-    class: "drawer__close",
+    class: "drawer__close glass-btn",
     type: "button",
     "data-i18n-aria": "menu.close"
   }, [icon(["M6 6l12 12", "M18 6L6 18"], 22)]);
 
   var sectionItems = SECTIONS.map(function (s) {
     var a = h("a", { class: "drawer__link", href: s.href, "data-s": s.id }, [
-      h("span", { class: "dot", "data-s": s.id, "aria-hidden": "true" }),
       h("span", { "data-i18n": s.key })
     ]);
     if (currentSection === s.id) a.setAttribute("aria-current", "page");
