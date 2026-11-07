@@ -19,8 +19,8 @@
   --c-women: #7f1734;
   --c-kids: #e3a82b;
 
-  --font-display: "Cormorant", "Cormorant Garamond", Georgia, "Times New Roman", serif;
-  --font-body: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Unbounded", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --glow-time: 0.7s;
@@ -276,8 +276,8 @@ body::before {
   min-height: 56px;
   font-family: var(--font-display);
   font-weight: 300;
-  font-size: 2rem;
-  line-height: 1.1;
+  font-size: clamp(1.05rem, 5.2vw, 1.4rem);
+  line-height: 1.25;
   color: var(--ink-dim);
   transition: color 0.4s ease;
 }
@@ -398,8 +398,8 @@ body.is-leaving .topbar {
 .footer__brand {
   font-family: var(--font-display);
   font-weight: 300;
-  font-size: 1.5rem;
-  letter-spacing: 0.3em;
+  font-size: 1.1rem;
+  letter-spacing: 0.12em;
   margin-bottom: 28px;
 }
 
