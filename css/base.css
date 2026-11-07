@@ -14,7 +14,7 @@
   --hairline: rgba(236, 232, 225, 0.14);
 
   /* свечение по разделам */
-  --c-home: #ff6a1a;
+  --c-home: #2a2145;
   --c-men: #1f51ff;
   --c-women: #7f1734;
   --c-kids: #e3a82b;
@@ -40,7 +40,7 @@
 @property --glow {
   syntax: "<color>";
   inherits: true;
-  initial-value: #ff6a1a;
+  initial-value: #2a2145;
 }
 
 /* ---------- Сброс ---------- */
@@ -116,12 +116,21 @@ body::before {
 .glow {
   position: absolute;
   left: 50%;
-  width: 150vw;
-  max-width: 1500px;
-  aspect-ratio: 1.7 / 1;
+  width: 210vw;
+  max-width: 2000px;
+  aspect-ratio: 1.45 / 1;
   transform: translate(-50%, -50%);
-  background: radial-gradient(closest-side, var(--glow) 0%, color-mix(in srgb, var(--glow) 38%, transparent) 45%, transparent 100%);
-  filter: blur(34px);
+  /* Много плавных ступеней вместо одной: нет ядра и нет края,
+     свет растворяется в чёрном постепенно. */
+  background: radial-gradient(closest-side,
+    color-mix(in srgb, var(--glow) 100%, transparent) 0%,
+    color-mix(in srgb, var(--glow) 82%, transparent) 16%,
+    color-mix(in srgb, var(--glow) 56%, transparent) 32%,
+    color-mix(in srgb, var(--glow) 32%, transparent) 50%,
+    color-mix(in srgb, var(--glow) 14%, transparent) 68%,
+    color-mix(in srgb, var(--glow) 4%, transparent) 84%,
+    transparent 100%);
+  filter: blur(70px);
   pointer-events: none;
   z-index: -1;
 }
