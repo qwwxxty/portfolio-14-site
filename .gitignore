@@ -1,0 +1,28 @@
+# macOS
+.DS_Store
+
+# Секреты: сюда нельзя коммитить ключи и пароли
+.env
+.env.*
+*.pem
+*.key
+*.p12
+secrets/
+credentials*.json
+
+# Зависимости и сборка
+node_modules/
+dist/
+build/
+
+# Логи
+*.log
+npm-debug.log*
+
+# Редакторы
+.vscode/
+.idea/
+*.swp
+
+# Служебное Claude Code
+.claude/
