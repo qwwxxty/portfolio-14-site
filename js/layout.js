@@ -205,6 +205,7 @@
 
   window.PRYSMERK = window.PRYSMERK || {};
   window.PRYSMERK.menu = { open: openMenu, close: closeMenu };
+  window.PRYSMERK.dom = { h: h, icon: icon };
 
   if (window.PRYSMERK.i18n) window.PRYSMERK.i18n.apply(document);
 })();
