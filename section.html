@@ -50,6 +50,7 @@
 
     <p class="catalog-status" id="catalog-status" role="status" hidden></p>
     <button class="btn catalog-retry" id="catalog-retry" type="button" hidden data-i18n="status.retry">Спробувати ще раз</button>
+    <button class="btn catalog-reset" id="catalog-reset" type="button" hidden data-i18n="filters.reset.all">Скинути фільтри</button>
     <div id="catalog"></div>
   </main>
 
@@ -89,14 +90,14 @@
             <label class="field">
               <span class="field__label" data-i18n="filters.from">Від</span>
               <span class="field__box">
-                <input class="field__input" id="price-min" type="text" inputmode="numeric" autocomplete="off" maxlength="6" spellcheck="false">
+                <input class="field__input" id="price-min" type="text" inputmode="numeric" autocomplete="off" maxlength="6" spellcheck="false" aria-describedby="price-error">
                 <span class="field__unit" data-currency></span>
               </span>
             </label>
             <label class="field">
               <span class="field__label" data-i18n="filters.to">До</span>
               <span class="field__box">
-                <input class="field__input" id="price-max" type="text" inputmode="numeric" autocomplete="off" maxlength="6" spellcheck="false">
+                <input class="field__input" id="price-max" type="text" inputmode="numeric" autocomplete="off" maxlength="6" spellcheck="false" aria-describedby="price-error">
                 <span class="field__unit" data-currency></span>
               </span>
             </label>

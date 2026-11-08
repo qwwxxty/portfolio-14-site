@@ -34,6 +34,7 @@
   var minInput = document.getElementById("price-min");
   var maxInput = document.getElementById("price-max");
   var priceError = document.getElementById("price-error");
+  var resetAllBtn = document.getElementById("catalog-reset");
 
   titleEl.setAttribute("data-i18n", "nav." + sectionId);
 
@@ -137,6 +138,10 @@
 
     if (total === 0) showStatus("catalog.empty");
     else hideStatus();
+    // пустой результат: даём выход прямо здесь, а не только через панель фильтров
+    resetAllBtn.hidden = total !== 0;
+    // без результатов список подразделов пуст: пустую плашку не показываем
+    if (subnav) subnav.hidden = total === 0;
 
     updateButtons(total);
     updateScrollSpy();
@@ -190,7 +195,9 @@
 
     subnavScroll = h("div", { class: "subnav__scroll" }, [list]);
     subnav = h("nav", { class: "subnav glass-btn", "data-i18n-aria": "subnav.label" }, [subnavScroll]);
-    document.body.insertBefore(subnav, document.body.firstChild.nextSibling);
+    // сразу после кнопки меню (перед ней стоит ссылка «Перейти до змісту»)
+    var topbarEl = document.querySelector(".topbar");
+    document.body.insertBefore(subnav, topbarEl ? topbarEl.nextSibling : document.body.firstChild);
 
     // Колёсико мыши листает список в стороны
     subnavScroll.addEventListener("wheel", function (e) {
@@ -375,6 +382,10 @@
   }
 
   resetBtn.addEventListener("click", resetAll);
+  resetAllBtn.addEventListener("click", function () {
+    resetAll();
+    openBtn.focus({ preventScroll: true }); // кнопка сброса исчезла, фокус не должен потеряться
+  });
   openBtn.addEventListener("click", function () { P.modal.open(filtersModal, openBtn); });
 
   /* ---------- Смена языка ----------

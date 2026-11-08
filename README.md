@@ -31,7 +31,7 @@ index.html            головна
 section.html          розділ (?s=men | women | kids): підрозділи, ряди плашок, фільтри
 product.html         товар (?id=...): фото, опис, вікно замовлення
 about / privacy / delivery / returns / contacts .html   інформаційні сторінки
-css/                  colors.css (усі кольори), fonts.css, base.css, glow.css, home/section/product/info.css
+css/                  colors.css (кольори й токени ліній та поверхонь), fonts.css, base.css, glow.css, home/section/product/info.css
 js/                   translations.js (усі тексти), i18n, layout (меню, футер), data (товари, ціни),
                       catalog, product, order (форма), hero (анімація відкриття), glow-engine + glow (свічення),
                       modal, transitions

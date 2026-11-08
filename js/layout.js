@@ -132,6 +132,23 @@
   ]);
 
   document.body.insertBefore(topbar, document.body.firstChild);
+
+  /* ---------- Ссылка «Перейти до змісту» ----------
+     Первая в порядке табуляции: клавиатурный пользователь пропускает меню и список подразделов.
+     Фокус уходит на <main> (tabindex -1: на него нельзя попасть табом, только программно). */
+  var main = document.querySelector("main");
+  if (main) {
+    if (!main.id) main.id = "main";
+    main.setAttribute("tabindex", "-1");
+    var skip = h("a", { class: "skip-link", href: "#" + main.id, "data-i18n": "a11y.skip" });
+    skip.addEventListener("click", function (e) {
+      e.preventDefault();
+      main.focus();
+      if (main.scrollIntoView) main.scrollIntoView();
+    });
+    document.body.insertBefore(skip, topbar);
+  }
+
   document.body.appendChild(scrim);
   document.body.appendChild(drawer);
   document.body.appendChild(footer);

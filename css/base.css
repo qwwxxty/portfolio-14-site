@@ -55,8 +55,39 @@ body {
   color: var(--ink);
   background: transparent;
   overflow-x: clip;
+  /* Телефон на боку с вырезом: содержимое не заходит под вырез. Вставки env() не равны нулю
+     только при viewport-fit=cover (он есть на всех страницах), в остальных случаях это 0.
+     Фиксированные элементы (кнопка меню, окно меню, окна) учитывают вставки сами. */
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
   -webkit-font-smoothing: antialiased;
 }
+
+/* Основная часть получает фокус от ссылки «Перейти до змісту». Рамка вокруг всей страницы не нужна. */
+main:focus { outline: none; }
+
+/* Балансировка строк: короткие заголовки ровнее, в абзацах нет одинокого слова на последней строке */
+h1, h2, h3 { text-wrap: balance; }
+p { text-wrap: pretty; }
+
+/* Ссылка «Перейти до змісту»: невидима, пока на неё не попал фокус с клавиатуры */
+.skip-link {
+  position: fixed;
+  top: calc(var(--safe-top) + 14px);
+  left: calc(var(--safe-left) + 16px);
+  z-index: 70;
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 999px;
+  font-size: 0.9375rem;
+  color: var(--ink);
+  background: rgb(14, 14, 16);
+  border: 1px solid var(--line-strong);
+  transform: translateY(calc(-100% - var(--safe-top) - 24px));
+}
+.skip-link:focus-visible { transform: none; border-radius: 999px; }
 
 
 body.menu-open,
@@ -113,7 +144,7 @@ img, svg { display: block; max-width: 100%; }
   -webkit-backdrop-filter: blur(18px) saturate(160%);
   backdrop-filter: blur(18px) saturate(160%);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-float);
 }
 
 /* Подсветка при наведении, нажатии и фокусе: слоновая кость.
@@ -124,7 +155,7 @@ img, svg { display: block; max-width: 100%; }
     border-color: color-mix(in srgb, var(--ivory) 60%, transparent);
     box-shadow:
       0 0 34px -8px color-mix(in srgb, var(--ivory) 45%, transparent),
-      0 8px 24px rgba(0, 0, 0, 0.35);
+      var(--shadow-float);
   }
 }
 .glass-btn:active,
@@ -133,13 +164,13 @@ img, svg { display: block; max-width: 100%; }
   border-color: color-mix(in srgb, var(--ivory) 75%, transparent);
   box-shadow:
     0 0 38px -6px color-mix(in srgb, var(--ivory) 55%, transparent),
-    0 8px 24px rgba(0, 0, 0, 0.35);
+    var(--shadow-float);
 }
 
 /* Запасной вариант: браузер не умеет размывать фон, делаем непрозрачный тёмный */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass,
-  .glass-btn { background: rgb(22, 22, 25); }
+  .glass-btn { background: var(--solid-glass); }
   .drawer { background: rgb(18, 18, 21); }
 }
 
@@ -163,7 +194,7 @@ img, svg { display: block; max-width: 100%; }
   transition: transform 0.4s var(--ease-out), border-color 0.3s ease;
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .menu-btn { background: rgb(22, 22, 25); }
+  .menu-btn { background: var(--solid-glass); }
 }
 
 .menu-btn svg,
@@ -237,7 +268,9 @@ img, svg { display: block; max-width: 100%; }
   color: var(--ink-dim);
   transition: color 0.3s ease, border-color 0.3s ease;
 }
-.drawer__close:hover { color: var(--ink); }
+@media (hover: hover) {
+  .drawer__close:hover { color: var(--ink); }
+}
 
 .drawer__nav {
   position: relative;
@@ -367,7 +400,7 @@ img, svg { display: block; max-width: 100%; }
   transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
 }
 .lang__btn[aria-pressed="true"] {
-  background: rgba(255, 255, 255, 0.16);
+  background: var(--surface-selected);
   color: var(--ink);
   border-color: color-mix(in srgb, var(--ivory) 80%, transparent);
 }
@@ -426,7 +459,9 @@ body.is-leaving .topbar {
   color: var(--ink-dim);
   transition: color 0.3s ease;
 }
-.footer__nav a:hover { color: var(--ink); }
+@media (hover: hover) {
+  .footer__nav a:hover { color: var(--ink); }
+}
 
 .footer__note {
   margin-top: 28px;
@@ -515,7 +550,9 @@ body.is-leaving .topbar {
   color: var(--ink-dim);
   transition: color 0.3s ease, border-color 0.3s ease;
 }
-.modal__close:hover { color: var(--ink); }
+@media (hover: hover) {
+  .modal__close:hover { color: var(--ink); }
+}
 
 .modal__body {
   position: relative;
@@ -546,9 +583,9 @@ body.is-leaving .topbar {
   color: var(--ink);
   background: rgba(255, 255, 255, 0.14);
   border: 1px solid rgba(255, 255, 255, 0.24);
-  transition: background-color 0.35s ease, border-color 0.35s ease, transform 0.35s var(--ease-out);
+  transition: background-color 0.35s ease, border-color 0.35s ease, transform 0.15s ease-out;
 }
-.btn:active { transform: scale(0.97); }
+.btn:active { transform: scale(0.96); }
 @media (hover: hover) {
   .btn:hover { background: rgba(255, 255, 255, 0.2); border-color: var(--ivory); }
 }
@@ -578,8 +615,8 @@ body.is-leaving .topbar {
   font-size: 0.875rem;
   font-weight: 400;
   color: var(--ink-dim);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: var(--surface-faint);
+  border: 1px solid var(--line);
   transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
 }
 @media (hover: hover) {
@@ -588,7 +625,7 @@ body.is-leaving .topbar {
 /* Выбранный чип: заливка, яркая рамка и галочка. Состояние не держится на одном цвете. */
 .chip[aria-pressed="true"] {
   color: var(--ink);
-  background: rgba(255, 255, 255, 0.16);
+  background: var(--surface-selected);
   border-color: var(--ivory);
 }
 .chip[aria-pressed="true"]::before,

@@ -100,7 +100,7 @@
   function updateTotal() {
     if (!state.product || state.qty < 1) { totalEl.hidden = true; return; }
     var unit = D.unitPrice(state.product);
-    totalEl.textContent = t("order.total") + ": " + state.qty + " × " + D.formatAmount(unit) + " = " + D.formatAmount(unit * state.qty);
+    totalEl.textContent = t("order.total") + ": " + state.qty + "\u00a0×\u00a0" + D.formatAmount(unit) + "\u00a0=\u00a0" + D.formatAmount(unit * state.qty);
     totalEl.hidden = false;
   }
 

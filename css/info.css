@@ -44,6 +44,16 @@
   color: var(--ink-dim);
 }
 .info__section p + p { margin-top: 12px; }
+/* Ссылки в тексте: подчёркнуты, чтобы отличаться от обычного текста */
+.info__section a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: from-font;
+  text-underline-offset: 0.25em;
+}
+@media (hover: hover) {
+  .info__section a:hover { text-decoration-color: var(--ivory); }
+}
 .info__demo + .info__section { margin-top: 7vh; }
 
 /* О бренде: история крупнее, с воздухом между абзацами */
@@ -56,12 +66,17 @@
 .info__lead + .info__lead { margin-top: 3.2rem; }
 
 .info__dna { margin-top: 14vh; }
+/* Иерархия: «Принципи» (h2) крупнее названий принципов (h3) под ним */
+.info__dna h2 {
+  font-size: clamp(1.5rem, 5vw, 2.4rem);
+  line-height: 1.2;
+}
 .info__dna-list { margin-top: 28px; display: grid; gap: 7vh; }
 .dna__item { max-width: 30ch; }
 .dna__title {
   font-family: var(--font-display);
   font-weight: 300;
-  font-size: clamp(1.4rem, 6vw, 2.4rem);
+  font-size: clamp(1.125rem, 3.4vw, 1.6rem);
   line-height: 1.2;
 }
 .dna__text {
