@@ -85,12 +85,17 @@
     window.setTimeout(run, 120);
   }
 
-  function status(key) {
+  function status(key, canRetry) {
     P.hero.removeGhost();
-    root.replaceChildren(
-      h("p", { class: "product__status", "data-i18n": key }, [t(key)]),
-      h("a", { class: "btn product__status-link", href: "section.html?s=men", "data-i18n": "product.notfound.link" }, [t("product.notfound.link")])
-    );
+    var kids = [h("p", { class: "product__status", "data-i18n": key }, [t(key)])];
+    if (canRetry) {
+      // Повтор: страница перезагружается целиком, так вернётся и сбойный файл, и данные
+      var retry = h("button", { class: "btn product__status-link", type: "button", "data-i18n": "status.retry" }, [t("status.retry")]);
+      retry.addEventListener("click", function () { location.reload(); });
+      kids.push(retry);
+    }
+    kids.push(h("a", { class: "btn product__status-link", href: "section.html?s=men", "data-i18n": "product.notfound.link" }, [t("product.notfound.link")]));
+    root.replaceChildren.apply(root, kids);
     document.title = "PRYSMERK";
     ready();
   }
@@ -254,7 +259,7 @@
       init(cachedData);
       D.load(); // в фоне проверит свежесть
     } else {
-      D.load().then(init).catch(function () { status("product.error"); });
+      D.load().then(init).catch(function () { status("product.error", true); });
     }
   }
 })();

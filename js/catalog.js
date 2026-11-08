@@ -472,6 +472,10 @@
       .catch(function () {
         showStatus("catalog.error");
         openBtn.hidden = true;
+        // Повтор: страница перезагружается целиком, так вернётся и сбойный файл, и данные
+        var retry = document.getElementById("catalog-retry");
+        retry.hidden = false;
+        retry.addEventListener("click", function () { location.reload(); });
         ready();
       });
   }

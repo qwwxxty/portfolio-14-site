@@ -74,7 +74,8 @@ window.PRYSMERK_I18N = {
     "filters.price.error": "Вкажіть числа. Мінімальна ціна не може бути більшою за максимальну.",
 
     "catalog.empty": "Нічого не знайдено. Змініть фільтри.",
-    "catalog.error": "Не вдалося завантажити каталог. Відкрийте сайт через локальний сервер (див. README).",
+    "catalog.error": "Не вдалося завантажити каталог. Перевірте з’єднання й спробуйте ще раз.",
+    "status.retry": "Спробувати ще раз",
 
     "color.black": "Чорний",
     "color.graphite": "Графітовий",
@@ -104,7 +105,7 @@ window.PRYSMERK_I18N = {
     "product.order": "Замовити",
     "product.notfound": "Товар не знайдено.",
     "product.notfound.link": "До каталогу",
-    "product.error": "Не вдалося завантажити товар. Відкрийте сайт через локальний сервер (див. README).",
+    "product.error": "Не вдалося завантажити товар. Перевірте з’єднання й спробуйте ще раз.",
 
     "order.title": "Замовлення",
     "order.item": "Товар",
@@ -259,7 +260,8 @@ window.PRYSMERK_I18N = {
     "filters.price.error": "Enter numbers. The minimum price cannot exceed the maximum.",
 
     "catalog.empty": "Nothing found. Change the filters.",
-    "catalog.error": "The catalog could not be loaded. Open the site through a local server (see README).",
+    "catalog.error": "The catalog could not be loaded. Check your connection and try again.",
+    "status.retry": "Try again",
 
     "color.black": "Black",
     "color.graphite": "Graphite",
@@ -289,7 +291,7 @@ window.PRYSMERK_I18N = {
     "product.order": "Order",
     "product.notfound": "Product not found.",
     "product.notfound.link": "To the catalog",
-    "product.error": "The product could not be loaded. Open the site through a local server (see README).",
+    "product.error": "The product could not be loaded. Check your connection and try again.",
 
     "order.title": "Order",
     "order.item": "Item",

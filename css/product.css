@@ -144,7 +144,7 @@
 .btn--wide { width: 100%; max-width: 420px; min-height: 56px; margin-top: 34px; font-size: 1rem; }
 
 .product__status { margin: 4vh var(--pad) 24px; max-width: 36ch; font-size: 0.9375rem; line-height: 1.7; color: var(--ink-dim); }
-.product__status-link { display: inline-flex; align-items: center; margin-left: var(--pad); }
+.product__status-link { display: inline-flex; align-items: center; margin: 0 0 12px var(--pad); }
 
 /* ---------- Окно заказа ---------- */
 .modal__form { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
@@ -158,7 +158,7 @@
   margin: 10px 0 4px;
   font-family: var(--font-display);
   font-weight: 300;
-  font-size: 1rem;
+  font-size: 1.125rem;
   line-height: 1.4;
   outline: none;
 }
@@ -190,6 +190,7 @@
 .chip-radio span {
   display: inline-flex;
   align-items: center;
+  gap: 8px;
   min-height: 44px;
   padding: 0 18px;
   border-radius: 999px;
@@ -205,8 +206,16 @@
 }
 .chip-radio input:checked + span {
   color: var(--ink);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.16);
   border-color: var(--ivory);
+}
+@media (forced-colors: active) {
+  .chip-radio input:checked + span {
+    forced-color-adjust: none;
+    color: HighlightText;
+    background: Highlight;
+    border-color: Highlight;
+  }
 }
 .chip-radio input:focus-visible + span { outline: 2px solid var(--ink); outline-offset: 3px; }
 
